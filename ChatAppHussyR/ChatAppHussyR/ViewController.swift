@@ -9,6 +9,15 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        print(saveButton.frame)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     //MARK: Actions
     
@@ -171,6 +180,7 @@ extension ViewController {
         view.backgroundColor = .white
         editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         setupLayout()
+        print(saveButton.frame) // Здесь еще не известны резмеры UI элементов
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -180,7 +190,7 @@ extension ViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         avatarImageView.layer.cornerRadius = avatarImageView.bounds.width / 2
-
+        print(saveButton.frame) // В данном методе уже известны размеры ui элементов
     }
     
     override func viewWillLayoutSubviews() {
