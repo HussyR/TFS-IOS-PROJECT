@@ -14,7 +14,27 @@ class ViewController: UIViewController {
     
     @objc private func editTapped() {
         print("Выбери изображение профиля")
-        let alert = UIAlertController(title: "Изображение профиля", message: "awd", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Изображение профиля", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Установить из галереи", style: .default, handler: {[weak self] _ in
+            guard let self = self else {return}
+            let vc = UIImagePickerController()
+            vc.sourceType = .photoLibrary
+            vc.mediaTypes = ["public.image"]
+            vc.allowsEditing = true
+            vc.delegate = self
+            self.present(vc, animated: true)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
+            guard let self = self else {return}
+            let vc = UIImagePickerController()
+            vc.sourceType = .camera
+            vc.mediaTypes = ["public.image"]
+            vc.allowsEditing = true
+            vc.delegate = self
+            self.present(vc, animated: true)
+        }))
+        present(alert, animated: true, completion: nil)
     }
     
     //MARK: Setup UI Layout
@@ -183,4 +203,15 @@ extension ViewController {
 
     }
 
+}
+
+extension ViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        if let image = info[.originalImage] as? UIImage {
+            avatarImageView.image = image
+        } else if let image = info[.editedImage] as? UIImage {
+            avatarImageView.image = image
+        }
+    }
 }
