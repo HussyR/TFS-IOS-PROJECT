@@ -117,6 +117,7 @@ class ViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "My Profile"
         label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 26)
         return label
     }()
     
@@ -125,13 +126,14 @@ class ViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Close", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         return button
     }()
     
     let avatarImageView : UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "person"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .black
+        imageView.backgroundColor = .black.withAlphaComponent(0.02)
         imageView.clipsToBounds = true
         return imageView
     }()
@@ -141,6 +143,7 @@ class ViewController: UIViewController {
         button.setTitle("Edit", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         return button
     }()
     
@@ -149,6 +152,7 @@ class ViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Danila Ryabikov"
         label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 24)
         return label
     }()
     
@@ -158,6 +162,7 @@ class ViewController: UIViewController {
         label.text = "UX/UI designer, web-designer Moscow, Russia"
         label.numberOfLines = 0
         label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 16)
         return label
     }()
     
@@ -168,6 +173,7 @@ class ViewController: UIViewController {
         button.setTitle("Save", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.layer.cornerRadius = 14
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         return button
     }()
     
