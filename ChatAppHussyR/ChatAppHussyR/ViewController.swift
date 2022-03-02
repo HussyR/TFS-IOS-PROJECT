@@ -33,7 +33,6 @@ class ViewController: UIViewController {
             vc.delegate = self
             self.present(vc, animated: true)
         }))
-        
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
             guard let self = self else {return}
             let vc = UIImagePickerController()
@@ -108,7 +107,7 @@ class ViewController: UIViewController {
     let navigationView : UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.02)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.04)
         return view
     }()
     
@@ -133,7 +132,8 @@ class ViewController: UIViewController {
     let avatarImageView : UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "person"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .black.withAlphaComponent(0.02)
+        imageView.backgroundColor = .black.withAlphaComponent(0.04)
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
@@ -169,7 +169,7 @@ class ViewController: UIViewController {
     let saveButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = .black.withAlphaComponent(0.02)
+        button.backgroundColor = .black.withAlphaComponent(0.04)
         button.setTitle("Save", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.layer.cornerRadius = 14
@@ -191,6 +191,7 @@ extension ViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("\(saveButton.frame) \(#function)")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -201,12 +202,12 @@ extension ViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-
+        print("\(saveButton.frame) \(#function)")
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
+        print("\(saveButton.frame) \(#function)")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -220,7 +221,7 @@ extension ViewController {
     }
 
 }
-
+//MARK: UINavigationControllerDelegate, UIImagePickerControllerDelegate
 extension ViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
