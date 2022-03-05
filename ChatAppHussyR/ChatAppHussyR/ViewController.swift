@@ -26,23 +26,24 @@ class ViewController: UIViewController {
         let alert = UIAlertController(title: "Изображение профиля", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Установить из галереи", style: .default, handler: {[weak self] _ in
             guard let self = self else {return}
-            let vc = UIImagePickerController()
-            vc.sourceType = .photoLibrary
-            vc.mediaTypes = ["public.image"]
-            vc.allowsEditing = true
-            vc.delegate = self
-            self.present(vc, animated: true)
+            self.showImagePickerController(sourceType: .photoLibrary)
         }))
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
             guard let self = self else {return}
-            let vc = UIImagePickerController()
-            vc.sourceType = .camera
+            self.showImagePickerController(sourceType: .camera)
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
+        let vc = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(sourceType) {
+            vc.sourceType = sourceType
             vc.mediaTypes = ["public.image"]
             vc.allowsEditing = true
             vc.delegate = self
             self.present(vc, animated: true)
-        }))
-        present(alert, animated: true, completion: nil)
+        }
     }
     
     //MARK: Setup UI Layout
@@ -196,7 +197,6 @@ extension ViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        avatarImageView.layer.cornerRadius = avatarImageView.bounds.width / 2
         print(saveButton.frame) // В данном методе уже известны размеры ui элементов
     }
     
@@ -207,6 +207,7 @@ extension ViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        avatarImageView.layer.cornerRadius = avatarImageView.bounds.width / 2
         print("\(saveButton.frame) \(#function)")
     }
     
