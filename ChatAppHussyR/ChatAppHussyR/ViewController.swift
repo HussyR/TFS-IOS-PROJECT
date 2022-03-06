@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Foundation
+import AVFoundation
 
 class ViewController: UIViewController {
 
@@ -30,19 +32,31 @@ class ViewController: UIViewController {
         }))
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
             guard let self = self else {return}
-            self.showImagePickerController(sourceType: .camera)
+            self.showImagePickerController(sourceType: UIImagePickerController.SourceType.camera)
         }))
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         present(alert, animated: true, completion: nil)
     }
     
     private func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
         let vc = UIImagePickerController()
-        if UIImagePickerController.isSourceTypeAvailable(sourceType) {
+        vc.mediaTypes = ["public.image"]
+        vc.allowsEditing = true
+        vc.delegate = self
+        print(AVCaptureDevice.authorizationStatus(for: .video).rawValue)
+        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else {return}
+        if sourceType == .photoLibrary {
             vc.sourceType = sourceType
-            vc.mediaTypes = ["public.image"]
-            vc.allowsEditing = true
-            vc.delegate = self
             self.present(vc, animated: true)
+        } else if AVCaptureDevice.authorizationStatus(for: .video) == .authorized ||
+                  AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined
+        {
+            vc.sourceType = sourceType
+            self.present(vc, animated: true)
+        } else {
+            let alert = UIAlertController(title: "Разрешите доступ", message: "Выбранный вами способ недоступен", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ок", style: .cancel))
+            self.show(alert, sender: self)
         }
     }
     
