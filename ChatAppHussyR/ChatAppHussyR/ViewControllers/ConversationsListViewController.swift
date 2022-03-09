@@ -11,7 +11,7 @@ class ConversationsListViewController: UIViewController {
 
     let offlineData = MyData.getOfflineData()
     let onlineData = MyData.getOnlineData()
-    
+    var passedName : String?
     
     
     override func viewDidLoad() {
@@ -49,10 +49,6 @@ class ConversationsListViewController: UIViewController {
     }
     
     
-    // MARK: - Navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-    }
     
     @objc private func presentPersonVC() {
         self.present(ViewController(), animated: true, completion: nil)
@@ -114,4 +110,18 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
         default: return "No way"
         }
     }
+    // MARK: - Navigation + didSelectRow
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            passedName = onlineData[indexPath.row].name
+        } else {
+            passedName = offlineData[indexPath.row].name
+        }
+        let vc = ConversationViewController()
+        vc.name = passedName
+        navigationController?.pushViewController(vc, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
 }

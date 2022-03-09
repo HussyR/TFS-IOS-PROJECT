@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ConversationCellConfiguration : class {
+protocol ConversationCellConfiguration {
     var name: String? {get set}
     var message: String? {get set}
     var date: Date? {get set}
@@ -150,7 +150,7 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         let label = UILabel()
         label.text = ""
         label.numberOfLines = 2
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = UIFont.systemFont(ofSize: 15)
         label.textColor = .lightGray
 //        label.backgroundColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
