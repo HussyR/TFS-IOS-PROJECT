@@ -38,6 +38,10 @@ class ViewController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    @objc private func closeAction() {
+        self.dismiss(animated: true)
+    }
+    
     private func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
         let vc = UIImagePickerController()
         vc.mediaTypes = ["public.image"]
@@ -58,6 +62,12 @@ class ViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "Ок", style: .cancel))
             self.show(alert, sender: self)
         }
+    }
+    
+    //MARK: Setup UI Actions
+    
+    private func setupUIActions() {
+        closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
     }
     
     //MARK: Setup UI Layout
@@ -201,6 +211,7 @@ extension ViewController {
         view.backgroundColor = .white
         editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         setupLayout()
+        setupUIActions()
         print(saveButton.frame) // Здесь еще не известны резмеры UI элементов
     }
     
