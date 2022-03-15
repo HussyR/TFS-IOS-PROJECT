@@ -46,12 +46,23 @@ class ConversationsListViewController: UIViewController {
     private func setupNavigationBar() {
         navigationItem.title = "Tinkoff Chat"
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "person.fill"), style: .plain, target: self, action: #selector(presentPersonVC))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .plain,  target: self, action: #selector(presentSettingsVC))
     }
     
     
     
     @objc private func presentPersonVC() {
         self.present(ViewController(), animated: true, completion: nil)
+    }
+    
+    @objc private func presentSettingsVC() {
+        let vc = ThemesViewController()
+//        vc.delegate = self
+        vc.closure = { theme in
+            self.view.backgroundColor = .red
+            print(theme)
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     //MARK: UIElements
@@ -66,12 +77,6 @@ class ConversationsListViewController: UIViewController {
         tableView.estimatedRowHeight = 52
         return tableView
     }()
-    
-    let rightNavigationButton: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        return button
-    }()
-
 }
 //MARK: UITableViewDelegate, UITableViewDataSource
 extension ConversationsListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -124,4 +129,10 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+}
+
+extension ConversationsListViewController: ThemesPickerDelegate {
+    func themeViewController(themeVC: ThemesViewController, theme: Theme) {
+        print(theme)
+    }
 }
