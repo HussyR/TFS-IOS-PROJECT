@@ -79,7 +79,7 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         
     }
     
-    //MARK: Configuration
+    //MARK: Configuration and theme
     
     public func configure(name: String?, message: String?, date: Date?, online: Bool, hasUnreadMessages: Bool) {
         self.name = name
@@ -88,6 +88,21 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         self.online = online
         self.hasUnreadMessages = hasUnreadMessages
         updateUI()
+    }
+    
+    public func configure(theme: Theme) {
+        switch theme {
+        case .night:
+            contentView.backgroundColor = .black
+            nameLabel.textColor = .white
+            dateLabel.textColor = .white.withAlphaComponent(0.5)
+            messageLabel.textColor = .white.withAlphaComponent(0.5)
+        default:
+            contentView.backgroundColor = (online ? .yellow.withAlphaComponent(0.05): .white)
+            nameLabel.textColor = .black
+            messageLabel.textColor = .lightGray
+            dateLabel.textColor = .lightGray
+        }
     }
     
     private func updateUI() {
@@ -132,7 +147,6 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         let imageView = UIImageView()
         imageView.image = UIImage(named: "avatar")
         imageView.translatesAutoresizingMaskIntoConstraints = false
-//        imageView.backgroundColor = .blue
         imageView.layer.cornerRadius = 24
         return imageView
     }()
@@ -142,7 +156,6 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         label.text = ""
         label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-//        label.backgroundColor = .yellow
         return label
     }()
     
@@ -152,7 +165,6 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         label.numberOfLines = 2
         label.font = UIFont.systemFont(ofSize: 15)
         label.textColor = .lightGray
-//        label.backgroundColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

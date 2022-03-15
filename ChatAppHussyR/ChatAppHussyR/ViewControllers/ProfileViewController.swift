@@ -9,8 +9,10 @@ import UIKit
 import Foundation
 import AVFoundation
 
-class ViewController: UIViewController {
+class ProfileViewController: UIViewController {
 
+    var theme: Theme = .classic
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         print(saveButton.frame)
@@ -61,6 +63,26 @@ class ViewController: UIViewController {
             let alert = UIAlertController(title: "Разрешите доступ", message: "Выбранный вами способ недоступен", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ок", style: .cancel))
             self.show(alert, sender: self)
+        }
+    }
+    
+    
+    //MARK: Theme
+    
+    private func setupTheme() {
+        switch theme {
+        case .night:
+            view.backgroundColor = .black
+            myProfileLabel.textColor = .white
+            navigationView.backgroundColor = .clear
+            nameLabel.textColor = .white
+            descriptionLabel.textColor = .white
+        default:
+            view.backgroundColor = .white
+            myProfileLabel.textColor = .black
+            navigationView.backgroundColor = .black.withAlphaComponent(0.04)
+            nameLabel.textColor = .black
+            descriptionLabel.textColor = .black
         }
     }
     
@@ -205,14 +227,15 @@ class ViewController: UIViewController {
 }
 
 //MARK: Lifecycle
-extension ViewController {
+extension ProfileViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         setupLayout()
         setupUIActions()
-        print(saveButton.frame) // Здесь еще не известны резмеры UI элементов
+        setupTheme()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -248,7 +271,7 @@ extension ViewController {
 
 }
 //MARK: UINavigationControllerDelegate, UIImagePickerControllerDelegate
-extension ViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+extension ProfileViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         if let image = info[.originalImage] as? UIImage {

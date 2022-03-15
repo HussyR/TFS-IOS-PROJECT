@@ -19,10 +19,7 @@ protocol ThemesPickerDelegate: class {
 
 class ThemesViewController: UIViewController {
     
-    deinit {
-        print("deinit")
-    }
-    
+    var theme = Theme.classic
     weak var delegate: ThemesPickerDelegate?
     var closure: ((Theme) -> Void)?
     
@@ -31,9 +28,14 @@ class ThemesViewController: UIViewController {
         view.backgroundColor = .white
         setupNavigation()
         setupUI()
+        
+        
     }
     
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupTheme()
+    }
     
     
     //MARK: SetupUI
@@ -55,9 +57,20 @@ class ThemesViewController: UIViewController {
     }
     
     
-    //MARK: Navigation
+    //MARK: Navigation and theme
     private func setupNavigation() {
         navigationItem.title = "Settings"
+    }
+    
+    private func setupTheme() {
+        switch theme {
+        case .night:
+            view.backgroundColor = .black
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]            
+        default:
+            view.backgroundColor = .white
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        }
     }
     
     //MARK: UIElements
@@ -70,7 +83,7 @@ class ThemesViewController: UIViewController {
     }()
     
 }
-
+//MARK: UITableViewDataSource, UITableViewDelegate
 extension ThemesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ThemeTableViewCell", for: indexPath)
@@ -96,6 +109,8 @@ extension ThemesViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let theme = Theme(rawValue: indexPath.row) else {return}
+        self.theme = theme
+        setupTheme()
         if let closure = closure
         {
             closure(theme)
