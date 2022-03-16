@@ -85,6 +85,7 @@ class ConversationsListViewController: UIViewController {
     @objc private func presentSettingsVC() {
         let vc = ThemesViewController()
 //        vc.delegate = self
+        vc.theme = theme
         vc.closure = { [weak self] theme in
             guard let self = self else {return}
             UserDefaults.standard.set(theme.rawValue, forKey: "theme")
@@ -162,6 +163,8 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
 
 extension ConversationsListViewController: ThemesPickerDelegate {
     func themeViewController(themeVC: ThemesViewController, theme: Theme) {
-        print(theme)
+        UserDefaults.standard.set(theme.rawValue, forKey: "theme")
+        self.theme = theme
+        self.setupTheme()
     }
 }
