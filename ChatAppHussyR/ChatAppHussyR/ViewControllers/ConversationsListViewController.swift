@@ -86,6 +86,7 @@ class ConversationsListViewController: UIViewController {
         let vc = ThemesViewController()
 //        vc.delegate = self
         vc.theme = theme
+        // Здесь может вознукнуть retain cycle, но у меня нету сильной ссылки на новый контроллер, поэтому даже без weak не будет retain cycle, аналогично с делагатом
         vc.closure = { [weak self] theme in
             guard let self = self else {return}
             UserDefaults.standard.set(theme.rawValue, forKey: "theme")
