@@ -9,6 +9,8 @@ import UIKit
 
 class ConversationViewController: UIViewController {
     
+    var theme = Theme.classic
+    
     let model = [
         "My first message hehehe, how is it",
         "There are five types of schools in the US educational system",
@@ -20,8 +22,21 @@ class ConversationViewController: UIViewController {
     
     var name: String?
     
+    
+    //MARK: Navigation and theme
     private func setupNavigation() {
         navigationItem.title = name
+    }
+    
+    private func setupTheme() {
+        switch theme {
+        case .night:
+            view.backgroundColor = .black
+            tableView.backgroundColor = .black
+        default:
+            view.backgroundColor = .white
+            tableView.backgroundColor = .white
+        }
     }
     
     //MARK: Setup UI
@@ -68,6 +83,13 @@ extension ConversationViewController {
         setupTableView()
         // Do any additional setup after loading the view.
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupTheme()
+        tableView.reloadData()
+    }
+    
 }
 
 //MARK: UITableViewDataSource, UITableViewDelegate
@@ -77,10 +99,12 @@ extension ConversationViewController: UITableViewDataSource, UITableViewDelegate
         if (indexPath.row % 2 == 0) {
             let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
             cell?.configure(model[indexPath.row])
+            cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
             cell?.configure(model[indexPath.row])
+            cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         }
     }

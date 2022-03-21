@@ -54,6 +54,23 @@ class RightTableViewCell: UITableViewCell, MessageCellConfiguration {
         updateUI()
     }
     
+    public func configure(theme: Theme) {
+        switch theme {
+        case .classic:
+            contentView.backgroundColor = .white
+            backView.backgroundColor = .green.withAlphaComponent(0.5)
+            messageLabel.textColor = .white
+        case .day:
+            contentView.backgroundColor = .white
+            backView.backgroundColor = .systemBlue
+            messageLabel.textColor = .white
+        case .night:
+            contentView.backgroundColor = .black
+            backView.backgroundColor = .white.withAlphaComponent(0.3)
+            messageLabel.textColor = .white
+        }
+    }
+    
     private func updateUI() {
         messageLabel.text = message
     }
