@@ -18,7 +18,6 @@ enum SaveMethod {
 class ProfileViewController: UIViewController {
 
     private let queue = OperationQueue()
-    private var operation = DataManagerOperation()
     var theme: Theme = .classic
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -56,6 +55,7 @@ class ProfileViewController: UIViewController {
     }
     
     @objc private func makeEditable() {
+        nameTextField.becomeFirstResponder()
         showButtons(show: false)
         isEdit(isEdit: true)
         updateSavedUI()
@@ -71,12 +71,13 @@ class ProfileViewController: UIViewController {
     }
     
     @objc private func saveGCD() {
-        print(#function)
         showButtons(show: false)
         activityIndicator.startAnimating()
-        let profileData = makeProfileModel()
+        let profileData = self.makeProfileModel()
         DispatchQueue.global(qos: .background).async { [weak self] in
+            guard let self = self else {return}
             let success = DataManagerGCD.shared.writeProfileData(model: profileData)
+            print("data saved")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
                 self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .GCD)
@@ -85,12 +86,13 @@ class ProfileViewController: UIViewController {
     }
     
     @objc private func saveOperation() {
+        let operation = DataManagerOperation()
         showButtons(show: false)
         activityIndicator.startAnimating()
         let profileData = makeProfileModel()
-        
         operation.profileData = profileData
         operation.completion = { success in
+            print("data saved")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
                 self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .operation)
@@ -119,7 +121,6 @@ class ProfileViewController: UIViewController {
     // Метод показывает алерты и в случае нажатия повторения вызывает соотв. методы сохранения
     private func showAlertWhenSuccessOrFailSave(isSuccess: Bool, method: SaveMethod) {
         if (isSuccess) {
-                print("data write")
                 self.activityIndicator.stopAnimating()
                 let alert = UIAlertController(title: "Данные сохранены", message: nil, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
@@ -129,7 +130,6 @@ class ProfileViewController: UIViewController {
                 self.updateSavedUI()
                 self.present(alert, animated: true)
         } else {
-            print("data not write")
             let alert = UIAlertController(title: "Ошибка", message: "", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                 self.showButtons(show: true)
@@ -476,6 +476,7 @@ extension ProfileViewController {
         
         nameTextField.delegate = self
         descriptionTextView.delegate = self
+        queue.maxConcurrentOperationCount = 2
         
         readProfileData()
     }
