@@ -9,13 +9,15 @@
 
 import Foundation
 
-class DataManager {
+class DataManagerGCD {
     
-    static let shared = DataManager()
+    static let shared = DataManagerGCD()
     
     private init() {
         
     }
+    
+    var oldSavedModel: ProfileData?
     
     func getDocumentDirectory() -> URL {
         let url = FileManager.default.urls(for: .documentDirectory,
@@ -28,15 +30,37 @@ class DataManager {
     }
     
     func getTheme() -> URL {
-        return getDocumentDirectory().appendingPathComponent("theme.plist")
+        return getDocumentDirectory().appendingPathComponent("theme.json")
     }
     
-    func writeProfileData(model: ProfileData) {
+    func writeThemeData(theme: Int) {
+        do {
+            let data = try JSONEncoder().encode(theme)
+            try data.write(to: getTheme())
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func readThemeData() -> Int {
+        do {
+            let data = try Data(contentsOf: getTheme())
+            let theme = try JSONDecoder().decode(Int.self, from: data)
+            return theme
+        } catch {
+            print(error.localizedDescription)
+            return 0
+        }
+    }
+    
+    func writeProfileData(model: ProfileData) -> Bool {
         do {
             let data = try PropertyListEncoder().encode(model)
             try data.write(to: getProfile())
+            return true
         } catch {
             print(error.localizedDescription)
+            return false
         }
     }
     

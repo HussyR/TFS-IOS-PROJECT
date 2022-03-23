@@ -9,8 +9,16 @@ import UIKit
 import Foundation
 import AVFoundation
 
+enum SaveMethod {
+    case GCD
+    case operation
+}
+
+
 class ProfileViewController: UIViewController {
 
+    private let queue = OperationQueue()
+    private var operation = DataManagerOperation()
     var theme: Theme = .classic
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -64,35 +72,85 @@ class ProfileViewController: UIViewController {
     
     @objc private func saveGCD() {
         print(#function)
-        isEdit(isEdit: false)
+        showButtons(show: false)
         activityIndicator.startAnimating()
-        let name = nameTextField.text ?? ""
-        let description = descriptionTextView.text ?? ""
-        let imageData = avatarImageView.image?.pngData()
+        let profileData = makeProfileModel()
         DispatchQueue.global(qos: .background).async { [weak self] in
-            let profileData = ProfileData(name: name, description: description, image: imageData)
-            DataManager.shared.writeProfileData(model: profileData)
+            let success = DataManagerGCD.shared.writeProfileData(model: profileData)
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
-                let alert = UIAlertController(title: "Данные сохранены", message: nil, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                    self.activityIndicator.stopAnimating()
-                }))
-                self.present(alert, animated: true)
+                self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .GCD)
             }
         }
     }
     
     @objc private func saveOperation() {
-        print(#function)
+        showButtons(show: false)
+        activityIndicator.startAnimating()
+        let profileData = makeProfileModel()
+        
+        operation.profileData = profileData
+        operation.completion = { success in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {return}
+                self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .operation)
+                print(success)
+            }
+        }
+        queue.addOperation(operation)
+    }
+    
+    //MARK: Logic
+    
+    private func makeProfileModel() -> ProfileData {
+        let name = nameTextField.text ?? ""
+        let description = descriptionTextView.text ?? ""
+        let imageData = avatarImageView.image?.pngData()
+        let profileData = ProfileData(name: name, description: description, image: imageData)
+        return profileData
     }
     
     
-    //MARK: Logic
+    //MARK: Подумать над общим вызовом
+    private func saveGCDorOperation() {
+        
+    }
+    
+    // Метод показывает алерты и в случае нажатия повторения вызывает соотв. методы сохранения
+    private func showAlertWhenSuccessOrFailSave(isSuccess: Bool, method: SaveMethod) {
+        if (isSuccess) {
+                print("data write")
+                self.activityIndicator.stopAnimating()
+                let alert = UIAlertController(title: "Данные сохранены", message: nil, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.showButtons(show: true)
+                    self.isEdit(isEdit: false)
+                }))
+                self.updateSavedUI()
+                self.present(alert, animated: true)
+        } else {
+            print("data not write")
+            let alert = UIAlertController(title: "Ошибка", message: "", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                self.showButtons(show: true)
+            }))
+            alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] action in
+                guard let self = self else {return}
+                switch method {
+                case .GCD:
+                    self.saveGCD()
+                case .operation:
+                    self.saveOperation()
+                }
+            }))
+            self.present(alert, animated: true)
+        }
+    }
+    
     private func readProfileData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self,
-                  let model = DataManager.shared.readProfileData() else {return}
+                  let model = DataManagerGCD.shared.readProfileData() else {return}
             DispatchQueue.main.async {
                 let description = (model.description.isEmpty ? "description": model.description)
                 self.nameTextField.text = model.name
@@ -340,6 +398,7 @@ class ProfileViewController: UIViewController {
     let descriptionTextView : UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.backgroundColor = .clear
         textView.isUserInteractionEnabled = false
         textView.text = "Description"
         textView.isScrollEnabled = false
