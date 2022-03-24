@@ -16,7 +16,7 @@ class DataManagerOperation: Operation {
     
     var completion: ((Bool) -> Void)?
     var readOrWrite = ReadOrWrite.write
-    var profileData: ProfileData?
+    var profileData: ProfileModel?
     
     var getProfile: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("profile.plist")
@@ -48,7 +48,7 @@ class DataManagerOperation: Operation {
     func read() {
         do {
             let data = try Data(contentsOf: getProfile)
-            let model = try PropertyListDecoder().decode(ProfileData.self, from: data)
+            let model = try PropertyListDecoder().decode(ProfileModel.self, from: data)
             profileData = model
         } catch {
             print(error.localizedDescription)

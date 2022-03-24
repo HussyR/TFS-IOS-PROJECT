@@ -17,7 +17,7 @@ class DataManagerGCD {
         
     }
     
-    var oldSavedModel: ProfileData?
+    var oldSavedModel: ProfileModel?
     
     func getDocumentDirectory() -> URL {
         let url = FileManager.default.urls(for: .documentDirectory,
@@ -53,7 +53,7 @@ class DataManagerGCD {
         }
     }
     
-    func writeProfileData(model: ProfileData) -> Bool {
+    func writeProfileData(model: ProfileModel) -> Bool {
         do {
             let data = try PropertyListEncoder().encode(model)
             try data.write(to: getProfile())
@@ -64,22 +64,22 @@ class DataManagerGCD {
         }
     }
     
-    func readProfileData() -> ProfileData? {
+    func readProfileData() -> Result<ProfileModel, Error> {
         do {
             let data = try Data(contentsOf: getProfile())
-            let model = try PropertyListDecoder().decode(ProfileData.self, from: data)
-            return model
+            let model = try PropertyListDecoder().decode(ProfileModel.self, from: data)
+            return .success(model)
         } catch {
             print(error.localizedDescription)
+            return .failure(error)
         }
-        return nil
     }
     
 }
 
 //MARK: Profile Data
 
-struct ProfileData: Codable {
+struct ProfileModel: Codable {
     var name: String
     var description: String
     var image: Data?

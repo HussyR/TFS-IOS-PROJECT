@@ -35,7 +35,7 @@ class ProfileViewController: UIViewController {
     
     //MARK: Actions
     
-    @objc private func editTapped() {
+    @objc private func editImageTapped() {
         print("Выбери изображение профиля")
         let alert = UIAlertController(title: "Изображение профиля", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Установить из галереи", style: .default, handler: {[weak self] _ in
@@ -54,7 +54,7 @@ class ProfileViewController: UIViewController {
         self.dismiss(animated: true)
     }
     
-    @objc private func makeEditable() {
+    @objc private func editTextTapped() {
         nameTextField.becomeFirstResponder()
         showButtons(show: false)
         isEdit(isEdit: true)
@@ -104,11 +104,11 @@ class ProfileViewController: UIViewController {
     
     //MARK: Logic
     
-    private func makeProfileModel() -> ProfileData {
+    private func makeProfileModel() -> ProfileModel {
         let name = nameTextField.text ?? ""
         let description = descriptionTextView.text ?? ""
         let imageData = avatarImageView.image?.pngData()
-        let profileData = ProfileData(name: name, description: description, image: imageData)
+        let profileData = ProfileModel(name: name, description: description, image: imageData)
         return profileData
     }
     
@@ -149,17 +149,22 @@ class ProfileViewController: UIViewController {
     
     private func readProfileData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self,
-                  let model = DataManagerGCD.shared.readProfileData() else {return}
-            DispatchQueue.main.async {
-                let description = (model.description.isEmpty ? "description": model.description)
-                self.nameTextField.text = model.name
-                self.descriptionTextView.text = description
-                if let data = model.image,
-                   let image = UIImage(data: data) {
-                    self.avatarImageView.image = image
+            guard let self = self else {return}
+            let result = DataManagerGCD.shared.readProfileData()
+            switch result {
+            case .success(let model):
+                DispatchQueue.main.async {
+                    let description = (model.description.isEmpty ? "description": model.description)
+                    self.nameTextField.text = model.name
+                    self.descriptionTextView.text = description
+                    if let data = model.image,
+                       let image = UIImage(data: data) {
+                        self.avatarImageView.image = image
+                    }
+                    self.updateSavedUI()
                 }
-                self.updateSavedUI()
+            case .failure(_):
+                print("Данные профиля не прочитаны")
             }
         }
     }
@@ -252,8 +257,8 @@ class ProfileViewController: UIViewController {
     
     private func setupUIActions() {
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        editAvatarButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
-        editTextButton.addTarget(self, action: #selector(makeEditable), for: .touchUpInside)
+        editAvatarButton.addTarget(self, action: #selector(editImageTapped), for: .touchUpInside)
+        editTextButton.addTarget(self, action: #selector(editTextTapped), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancelEditing), for: .touchUpInside)
         saveGCDButton.addTarget(self, action: #selector(saveGCD), for: .touchUpInside)
         saveOperationButton.addTarget(self, action: #selector(saveOperation), for: .touchUpInside)
