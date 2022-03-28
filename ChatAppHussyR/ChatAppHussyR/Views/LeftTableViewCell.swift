@@ -19,12 +19,13 @@ class LeftTableViewCell: UITableViewCell, MessageCellConfiguration {
         setupLayout()
     }
     
-    //MARK: Others
+    // MARK: - Others
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: SetupLayout
+    // MARK: - SetupLayout
     
     private func setupLayout() {
         contentView.addSubview(backView)
@@ -45,7 +46,7 @@ class LeftTableViewCell: UITableViewCell, MessageCellConfiguration {
             backView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: 5),
             backView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: -5),
             backView.topAnchor.constraint(equalTo: nameLabel.topAnchor, constant: -5),
-            backView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 5),
+            backView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 5)
         ]
         
         NSLayoutConstraint.activate(constaints)
@@ -79,8 +80,7 @@ class LeftTableViewCell: UITableViewCell, MessageCellConfiguration {
         nameLabel.text = name
     }
     
-    //MARK: UIElements
-    
+    // MARK: - UIElements
     
     let backView: UIView = {
         let view = UIView()
@@ -105,6 +105,5 @@ class LeftTableViewCell: UITableViewCell, MessageCellConfiguration {
         label.numberOfLines = 0
         return label
     }()
-    
     
 }

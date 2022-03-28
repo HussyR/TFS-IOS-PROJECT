@@ -15,9 +15,10 @@ class ConversationsListViewController: UIViewController {
     
     var theme = Theme.classic
     var channels = [Channel]()
-    var passedName : String?
+    var passedName: String?
     
-    //MARK: Lifecycle
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -27,21 +28,21 @@ class ConversationsListViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        super.viewWillAppear(animated)
         setupTheme()
         tableView.reloadData()
     }
     
-    //MARK: Firebase get all channels
+    // MARK: - Firebase get all channels
     
     private func fetchAllChannelsFirebase() {
         channelsReference.addSnapshotListener { [weak self] snap, error in
             guard let self = self,
                   error == nil
-            else {return}
+            else { return }
             var newChannels = [Channel]()
             snap?.documents.forEach { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
                 newChannels.append(newChannel)
             }
@@ -61,7 +62,7 @@ class ConversationsListViewController: UIViewController {
         return newChannel
     }
     
-    //MARK: SetupUI
+    // MARK: - SetupUI
     
     private func setupTableView() {
         view.addSubview(tableView)
@@ -80,20 +81,19 @@ class ConversationsListViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    //MARK: Logic
+    // MARK: - Logic
     
     @objc private func createNewChannelAction() {
         let alert = UIAlertController(title: "Создать новый канал", message: "Впишите название канала", preferredStyle: .alert)
         alert.addTextField()
-        let action = UIAlertAction(title: "OK", style: .default) { [weak self] action in
+        let action = UIAlertAction(title: "OK", style: .default) { [weak self] _ in
             guard let tf = alert.textFields?[0],
                   let name = tf.text
-            else {return}
+            else { return }
             self?.writeChannelToFirebase(name: name)
         }
         alert.addAction(action)
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
-        
         
         self.present(alert, animated: true)
     }
@@ -102,7 +102,7 @@ class ConversationsListViewController: UIViewController {
         channelsReference.addDocument(data: ["name": name])
     }
     
-    //MARK: Navigation and theme
+    // MARK: - Navigation and theme
     
     private func setupNavigationBar() {
         navigationItem.title = "Channels"
@@ -112,7 +112,10 @@ class ConversationsListViewController: UIViewController {
         
         navigationItem.rightBarButtonItems = [secondRightButton, firstRightButton]
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .plain,  target: self, action: #selector(presentSettingsVC))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"),
+                                                           style: .plain,
+                                                           target: self,
+                                                           action: #selector(presentSettingsVC))
     }
     
     private func setupTheme() {
@@ -142,7 +145,7 @@ class ConversationsListViewController: UIViewController {
         let vc = ThemesViewController()
         vc.theme = theme
         vc.closure = { [weak self] theme in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.theme = theme
             self.setupTheme()
             DispatchQueue.global(qos: .background).async {
@@ -152,9 +155,9 @@ class ConversationsListViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    //MARK: UIElements
+    // MARK: - UIElements
     
-    let tableView : UITableView = {
+    let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .black.withAlphaComponent(0.05)
@@ -163,7 +166,9 @@ class ConversationsListViewController: UIViewController {
         return tableView
     }()
 }
-//MARK: UITableViewDelegate, UITableViewDataSource
+
+    // MARK: - UITableViewDelegate, UITableViewDataSource
+
 extension ConversationsListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -172,7 +177,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ConversationTableViewCell.identifier, for: indexPath)
-        guard let cell = cell as? ConversationTableViewCell else {return cell}
+        guard let cell = cell as? ConversationTableViewCell else { return cell }
         
         let channel = channels[indexPath.row]
         cell.configure(name: channel.name, message: channel.lastMessage, date: channel.lastActivity, online: false, hasUnreadMessages: false)

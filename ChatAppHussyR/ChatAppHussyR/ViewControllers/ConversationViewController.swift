@@ -21,8 +21,8 @@ class ConversationViewController: UIViewController {
         UIDevice.current.identifierForVendor?.uuidString ?? ""
     }
     
+    // MARK: - Navigation and theme
     
-    //MARK: Navigation and theme
     private func setupNavigation() {
         navigationItem.title = channel?.name
     }
@@ -38,17 +38,17 @@ class ConversationViewController: UIViewController {
         }
     }
     
-    //MARK: Logic
+    // MARK: - Logic
     
     private func fetchAllMessagesForChannel() {
-        guard let channel = channel else {return}
+        guard let channel = channel else { return }
         db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
             guard let self = self,
                   error == nil
-            else {return}
+            else { return }
             var newMessages = [Message]()
             snap?.documents.forEach { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 let message = self.makeMessage(model: $0.data())
                 newMessages.append(message)
             }
@@ -68,7 +68,7 @@ class ConversationViewController: UIViewController {
         return newMessage
     }
     
-    //MARK: Setup UI
+    // MARK: - Setup UI
     
     private func setupTableView() {
         view.addSubview(tableView)
@@ -88,8 +88,9 @@ class ConversationViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    //MARK: UIElements
-    let tableView : UITableView = {
+    // MARK: - UIElements
+    
+    let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .white
@@ -101,9 +102,8 @@ class ConversationViewController: UIViewController {
     }()
 }
 
+// MARK: - Lifecycle
 
-
-//MARK: Lifecycle
 extension ConversationViewController {
     
     override func viewDidLoad() {
@@ -113,19 +113,22 @@ extension ConversationViewController {
         setupTableView()
         fetchAllMessagesForChannel()
 //        guard let channel = channel else {return}
-//        db.collection("channels").document(channel.identifier).collection("messages").addDocument(data: ["content":"hello", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
+//        db.collection("channels")
+//            .document(channel.identifier)
+//            .collection("messages")
+//            .addDocument(data: ["content": "hello", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear( _ animated: Bool) {
+        super.viewWillAppear(animated)
         setupTheme()
         tableView.reloadData()
     }
     
 }
 
-//MARK: UITableViewDataSource, UITableViewDelegate
+// MARK: - UITableViewDataSource, UITableViewDelegate
 
 extension ConversationViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

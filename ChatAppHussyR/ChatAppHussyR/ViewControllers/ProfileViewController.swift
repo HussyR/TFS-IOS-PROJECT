@@ -14,7 +14,6 @@ enum SaveMethod {
     case operation
 }
 
-
 class ProfileViewController: UIViewController {
 
     private let queue = OperationQueue()
@@ -33,17 +32,17 @@ class ProfileViewController: UIViewController {
     var oldImage: UIImage?
     var oldImageFlag = false
     
-    //MARK: Actions
+    // MARK: - Actions
     
     @objc private func editImageTapped() {
         print("Выбери изображение профиля")
         let alert = UIAlertController(title: "Изображение профиля", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Установить из галереи", style: .default, handler: {[weak self] _ in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.showImagePickerController(sourceType: .photoLibrary)
         }))
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.showImagePickerController(sourceType: UIImagePickerController.SourceType.camera)
         }))
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
@@ -63,7 +62,7 @@ class ProfileViewController: UIViewController {
     
     @objc private func cancelEditing() {
         isEdit(isEdit: false)
-        if (hasChanges()) {
+        if hasChanges() {
             nameTextField.text = oldSavedName
             descriptionTextView.text = oldSavedDescription
             avatarImageView.image = oldImage
@@ -75,11 +74,11 @@ class ProfileViewController: UIViewController {
         activityIndicator.startAnimating()
         let profileData = self.makeProfileModel()
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self else {return}
+            guard let self = self else { return }
             let success = DataManagerGCD.shared.writeProfileData(model: profileData)
             print("data saved")
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .GCD)
             }
         }
@@ -94,7 +93,7 @@ class ProfileViewController: UIViewController {
         operation.completion = { success in
             print("data saved")
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .operation)
                 print(success)
             }
@@ -102,7 +101,7 @@ class ProfileViewController: UIViewController {
         queue.addOperation(operation)
     }
     
-    //MARK: Logic
+    // MARK: - Logic
     
     private func makeProfileModel() -> ProfileModel {
         let name = nameTextField.text ?? ""
@@ -112,15 +111,15 @@ class ProfileViewController: UIViewController {
         return profileData
     }
     
+    // MARK: - Подумать над общим вызовом
     
-    //MARK: Подумать над общим вызовом
     private func saveGCDorOperation() {
         
     }
     
     // Метод показывает алерты и в случае нажатия повторения вызывает соотв. методы сохранения
     private func showAlertWhenSuccessOrFailSave(isSuccess: Bool, method: SaveMethod) {
-        if (isSuccess) {
+        if isSuccess {
                 self.activityIndicator.stopAnimating()
                 let alert = UIAlertController(title: "Данные сохранены", message: nil, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
@@ -131,11 +130,11 @@ class ProfileViewController: UIViewController {
                 self.present(alert, animated: true)
         } else {
             let alert = UIAlertController(title: "Ошибка", message: "", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
                 self.showButtons(show: true)
             }))
-            alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] action in
-                guard let self = self else {return}
+            alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
                 switch method {
                 case .GCD:
                     self.saveGCD()
@@ -149,7 +148,7 @@ class ProfileViewController: UIViewController {
     
     private func readProfileData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self else {return}
+            guard let self = self else { return }
             let result = DataManagerGCD.shared.readProfileData()
             switch result {
             case .success(let model):
@@ -163,8 +162,9 @@ class ProfileViewController: UIViewController {
                     }
                     self.updateSavedUI()
                 }
-            case .failure(_):
+            case .failure(let error):
                 print("Данные профиля не прочитаны")
+                print(error.localizedDescription)
             }
         }
     }
@@ -182,13 +182,12 @@ class ProfileViewController: UIViewController {
         vc.allowsEditing = true
         vc.delegate = self
         print(AVCaptureDevice.authorizationStatus(for: .video).rawValue)
-        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else {return}
+        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else { return }
         if sourceType == .photoLibrary {
             vc.sourceType = sourceType
             self.present(vc, animated: true)
         } else if AVCaptureDevice.authorizationStatus(for: .video) == .authorized ||
-                  AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined
-        {
+                  AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
             vc.sourceType = sourceType
             self.present(vc, animated: true)
         } else {
@@ -208,9 +207,9 @@ class ProfileViewController: UIViewController {
     }
     
     private func hasChanges() -> Bool {
-        if (nameTextField.text != oldSavedName ||
+        if nameTextField.text != oldSavedName ||
             descriptionTextView.text != oldSavedDescription ||
-            oldImageFlag) {
+            oldImageFlag {
             return true
         }
         return false
@@ -230,7 +229,7 @@ class ProfileViewController: UIViewController {
         
     }
     
-    //MARK: Theme
+    // MARK: - Theme
     
     private func setupTheme() {
         switch theme {
@@ -248,12 +247,14 @@ class ProfileViewController: UIViewController {
             descriptionTextView.textColor = .black
         }
     }
-    //MARK:  Hide keyboard
+    
+    // MARK: - Hide keyboard
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
-    //MARK: Setup UI Actions
+    // MARK: - Setup UI Actions
     
     private func setupUIActions() {
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
@@ -264,7 +265,7 @@ class ProfileViewController: UIViewController {
         saveOperationButton.addTarget(self, action: #selector(saveOperation), for: .touchUpInside)
     }
     
-    //MARK: Setup UI Layout
+    // MARK: - Setup UI Layout
     
     private func setupLayout() {
         view.addSubview(navigationView)
@@ -286,7 +287,6 @@ class ProfileViewController: UIViewController {
         let avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: 240)
         avatarWidthConstraint.priority = UILayoutPriority(999)
 
-        
         NSLayoutConstraint.activate([
             navigationView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             navigationView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -344,16 +344,16 @@ class ProfileViewController: UIViewController {
         
     }
     
-    //MARK: UIElements
+    // MARK: - UIElements
     
-    let navigationView : UIView = {
+    let navigationView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor.black.withAlphaComponent(0.04)
         return view
     }()
     
-    let myProfileLabel : UILabel = {
+    let myProfileLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "My Profile"
@@ -371,7 +371,7 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let avatarImageView : UIImageView = {
+    let avatarImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "person"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .black.withAlphaComponent(0.04)
@@ -389,7 +389,7 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let nameTextField : UITextField = {
+    let nameTextField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.isUserInteractionEnabled = false
@@ -400,7 +400,7 @@ class ProfileViewController: UIViewController {
         return textField
     }()
     
-    let descriptionTextView : UITextView = {
+    let descriptionTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .clear
@@ -468,7 +468,8 @@ class ProfileViewController: UIViewController {
     }()
 }
 
-//MARK: Lifecycle
+// MARK: - Lifecycle
+
 extension ProfileViewController {
     
     override func viewDidLoad() {
@@ -514,9 +515,11 @@ extension ProfileViewController {
     }
 
 }
-//MARK: UINavigationControllerDelegate, UIImagePickerControllerDelegate
+
+// MARK: - UINavigationControllerDelegate, UIImagePickerControllerDelegate
+
 extension ProfileViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         picker.dismiss(animated: true)
         if let image = info[.originalImage] as? UIImage {
             oldImage = avatarImageView.image
@@ -536,7 +539,7 @@ extension ProfileViewController: UINavigationControllerDelegate, UIImagePickerCo
 
 extension ProfileViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if(hasChanges()) {
+        if hasChanges() {
             print(#function)
             showButtons(show: true)
         } else {
@@ -547,7 +550,7 @@ extension ProfileViewController: UITextFieldDelegate {
 
 extension ProfileViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        if(hasChanges()) {
+        if hasChanges() {
             print(#function)
             showButtons(show: true)
         } else {

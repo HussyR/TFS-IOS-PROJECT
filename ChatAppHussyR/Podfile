@@ -9,5 +9,6 @@ target 'ChatAppHussyR' do
 
 pod 'Firebase/Firestore'
 pod 'Firebase/Auth'
+pod 'SwiftLint'
 
 end

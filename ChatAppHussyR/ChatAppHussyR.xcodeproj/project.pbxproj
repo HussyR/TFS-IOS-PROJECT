@@ -149,6 +149,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 835CFA1627BF8827004B6BD6 /* Build configuration list for PBXNativeTarget "ChatAppHussyR" */;
 			buildPhases = (
+				8350305727F2267C004E66B9 /* ShellScript */,
 				A3B5E24EA6FBE3C720A50FE6 /* [CP] Check Pods Manifest.lock */,
 				835CF9FE27BF8825004B6BD6 /* Sources */,
 				835CF9FF27BF8825004B6BD6 /* Frameworks */,
@@ -211,6 +212,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8350305727F2267C004E66B9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
+		};
 		A3B5E24EA6FBE3C720A50FE6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
