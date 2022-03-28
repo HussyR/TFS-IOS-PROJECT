@@ -6,13 +6,15 @@
 //
 
 import UIKit
+import Firebase
 
 class ConversationsListViewController: UIViewController {
 
+    private lazy var db = Firestore.firestore()
+    private lazy var channelsReference = db.collection("channels")
     
     var theme = Theme.classic
-    let offlineData = MyData.getOfflineData()
-    let onlineData = MyData.getOnlineData()
+    var channels = [Channel]()
     var passedName : String?
     
     //MARK: Lifecycle
@@ -21,12 +23,42 @@ class ConversationsListViewController: UIViewController {
         view.backgroundColor = .white
         setupTableView()
         setupNavigationBar()
+        fetchAllChannelsFirebase()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         setupTheme()
         tableView.reloadData()
+    }
+    
+    //MARK: Firebase get all channels
+    
+    private func fetchAllChannelsFirebase() {
+        channelsReference.addSnapshotListener { [weak self] snap, error in
+            guard let self = self,
+                  error == nil
+            else {return}
+            var newChannels = [Channel]()
+            snap?.documents.forEach { [weak self] in
+                guard let self = self else {return}
+                let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
+                newChannels.append(newChannel)
+            }
+//            self.channels = newChannels.sorted {
+//                $0.lastActivity <= $1.lastActivity
+//            }
+            self.channels = newChannels
+            self.tableView.reloadData()
+        }
+    }
+    
+    private func makeChannel(model: [String: Any], id: String) -> Channel {
+        let name = model["name"] as? String ?? ""
+        let lastMessage = model["lastMessage"] as? String
+        let date = (model["lastActivity"] as? Timestamp)?.dateValue()
+        let newChannel = Channel(identifier: id, name: name, lastMessage: lastMessage, lastActivity: date)
+        return newChannel
     }
     
     //MARK: SetupUI
@@ -48,12 +80,38 @@ class ConversationsListViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    //MARK: navigation and theme
+    //MARK: Logic
+    
+    @objc private func createNewChannelAction() {
+        let alert = UIAlertController(title: "Создать новый канал", message: "Впишите название канала", preferredStyle: .alert)
+        alert.addTextField()
+        let action = UIAlertAction(title: "OK", style: .default) { [weak self] action in
+            guard let tf = alert.textFields?[0],
+                  let name = tf.text
+            else {return}
+            self?.writeChannelToFirebase(name: name)
+        }
+        alert.addAction(action)
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        
+        
+        self.present(alert, animated: true)
+    }
+    
+    private func writeChannelToFirebase(name: String) {
+        channelsReference.addDocument(data: ["name": name])
+    }
+    
+    //MARK: Navigation and theme
     
     private func setupNavigationBar() {
-//        navigationController?.navigationBar.isTranslucent = false
-        navigationItem.title = "Tinkoff Chat"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "person.fill"), style: .plain, target: self, action: #selector(presentPersonVC))
+        navigationItem.title = "Channels"
+        
+        let firstRightButton = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(createNewChannelAction))
+        let secondRightButton = UIBarButtonItem(image: UIImage(systemName: "person.fill"), style: .plain, target: self, action: #selector(presentPersonVC))
+        
+        navigationItem.rightBarButtonItems = [secondRightButton, firstRightButton]
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .plain,  target: self, action: #selector(presentSettingsVC))
     }
     
@@ -73,8 +131,6 @@ class ConversationsListViewController: UIViewController {
             navigationController?.navigationBar.barTintColor = .white
         }
     }
-    
-    
     
     @objc private func presentPersonVC() {
         let vc = ProfileViewController()
@@ -118,43 +174,39 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
         let cell = tableView.dequeueReusableCell(withIdentifier: ConversationTableViewCell.identifier, for: indexPath)
         guard let cell = cell as? ConversationTableViewCell else {return cell}
         
-        let i = indexPath.row
-        if indexPath.section == 0 {
-            let model = onlineData[i]
-            cell.configure(name: model.name, message: model.message, date: model.date, online: model.online, hasUnreadMessages: model.hasUnreadMessages)
-        } else {
-            let model = offlineData[i]
-            cell.configure(name: model.name, message: model.message, date: model.date, online: model.online, hasUnreadMessages: model.hasUnreadMessages)
-        }
+        let channel = channels[indexPath.row]
+        cell.configure(name: channel.name, message: channel.lastMessage, date: channel.lastActivity, online: false, hasUnreadMessages: false)
+        
+//        let i = indexPath.row
+//        if indexPath.section == 0 {
+//            let model = onlineData[i]
+//            cell.configure(name: model.name, message: model.message, date: model.date, online: model.online, hasUnreadMessages: model.hasUnreadMessages)
+//        } else {
+//            let model = offlineData[i]
+//            cell.configure(name: model.name, message: model.message, date: model.date, online: model.online, hasUnreadMessages: model.hasUnreadMessages)
+//        }
         cell.configure(theme: theme)
         return cell
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (section == 0 ? onlineData.count : offlineData.count)
+        return channels.count
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-        case 0: return "Online"
-        case 1: return "History"
-        default: return "No way"
-        }
-    }
     // MARK: - Navigation + didSelectRow
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            passedName = onlineData[indexPath.row].name
-        } else {
-            passedName = offlineData[indexPath.row].name
-        }
+//        if indexPath.section == 0 {
+//            passedName = onlineData[indexPath.row].name
+//        } else {
+//            passedName = offlineData[indexPath.row].name
+//        }
         let vc = ConversationViewController()
-        vc.name = passedName
+        vc.channel = channels[indexPath.row]
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)

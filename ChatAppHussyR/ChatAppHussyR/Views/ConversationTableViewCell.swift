@@ -11,8 +11,8 @@ protocol ConversationCellConfiguration {
     var name: String? {get set}
     var message: String? {get set}
     var date: Date? {get set}
-    var online: Bool {get set}
-    var hasUnreadMessages: Bool {get set}
+    var online: Bool? {get set}
+    var hasUnreadMessages: Bool? {get set}
     
 }
 
@@ -23,8 +23,8 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
     var name: String? = "Name"
     var message: String? = "Message"
     var date: Date? = nil
-    var online: Bool = true
-    var hasUnreadMessages: Bool = true
+    var online: Bool? = true
+    var hasUnreadMessages: Bool? = true
     var dateFormatter: DateFormatter?
     
     //MARK: Reuse
@@ -56,6 +56,8 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         
         dateLabel.setContentHuggingPriority(UILayoutPriority(251), for: .horizontal)
         dateLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
+        nameLabel.setContentHuggingPriority(UILayoutPriority(250), for: .horizontal)
+        
         
         NSLayoutConstraint.activate([
             
@@ -74,14 +76,15 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
             messageLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
             dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            dateLabel.topAnchor.constraint(equalTo: nameLabel.topAnchor)
+            dateLabel.topAnchor.constraint(equalTo: nameLabel.topAnchor),
+            dateLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor)
         ])
         
     }
     
     //MARK: Configuration and theme
     
-    public func configure(name: String?, message: String?, date: Date?, online: Bool, hasUnreadMessages: Bool) {
+    public func configure(name: String?, message: String?, date: Date?, online: Bool?, hasUnreadMessages: Bool?) {
         self.name = name
         self.message = message
         self.date = date
@@ -98,7 +101,7 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
             dateLabel.textColor = .white.withAlphaComponent(0.5)
             messageLabel.textColor = .white.withAlphaComponent(0.5)
         default:
-            contentView.backgroundColor = (online ? .yellow.withAlphaComponent(0.05): .white)
+            contentView.backgroundColor = ((online ?? false) ? .yellow.withAlphaComponent(0.05): .white)
             nameLabel.textColor = .black
             messageLabel.textColor = .lightGray
             dateLabel.textColor = .lightGray
@@ -131,11 +134,11 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         dateLabel.text = dateFormatter?.string(from: date)
         
 //        Online
-        contentView.backgroundColor = (online ? .yellow.withAlphaComponent(0.04): .white)
+        contentView.backgroundColor = ((online ?? false) ? .yellow.withAlphaComponent(0.04): .white)
         
 //        Has unread messages
         guard message != nil else {return}
-        messageLabel.font = (hasUnreadMessages ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13))
+        messageLabel.font = ((hasUnreadMessages ?? false) ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13))
     }
     
 

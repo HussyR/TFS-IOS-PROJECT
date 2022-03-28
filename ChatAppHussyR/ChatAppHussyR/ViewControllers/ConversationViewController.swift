@@ -6,26 +6,25 @@
 //
 
 import UIKit
+import Firebase
 
 class ConversationViewController: UIViewController {
     
     var theme = Theme.classic
     
-    let model = [
-        "My first message hehehe, how is it",
-        "There are five types of schools in the US educational system",
-        "They are: kindergarten, elementary school, middle school, high school and private school",
-        "Children go to kindergarten when they are 5 years old They go to elementary school from ages 6 through 11 (1-5 grades), middle school from ages 12 through 14 (6-8 grades) and high school from ages 15 through 19 (9-12 grades)",
-        "About 90 percent of all children attend public school, which is free.",
-        "The other 10 percent go I private schools, which often include religious education"
-    ]
+    var channel: Channel?
+    var messages = [Message]()
+    private lazy var db = Firestore.firestore()
+    private lazy var reference = db.collection("channels")
     
-    var name: String?
+    var uuid: String {
+        UIDevice.current.identifierForVendor?.uuidString ?? ""
+    }
     
     
     //MARK: Navigation and theme
     private func setupNavigation() {
-        navigationItem.title = name
+        navigationItem.title = channel?.name
     }
     
     private func setupTheme() {
@@ -37,6 +36,36 @@ class ConversationViewController: UIViewController {
             view.backgroundColor = .white
             tableView.backgroundColor = .white
         }
+    }
+    
+    //MARK: Logic
+    
+    private func fetchAllMessagesForChannel() {
+        guard let channel = channel else {return}
+        db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
+            guard let self = self,
+                  error == nil
+            else {return}
+            var newMessages = [Message]()
+            snap?.documents.forEach { [weak self] in
+                guard let self = self else {return}
+                let message = self.makeMessage(model: $0.data())
+                newMessages.append(message)
+            }
+            self.messages = newMessages.sorted {
+                $0.created <= $1.created
+            }
+            self.tableView.reloadData()
+        }
+    }
+    
+    private func makeMessage(model: [String: Any]) -> Message {
+        let content = (model["content"] as? String) ?? ""
+        let senderID = (model["senderID"] as? String) ?? ""
+        let date = (model["created"] as? Timestamp)?.dateValue() ?? Date()
+        let senderName = (model["senderName"] as? String) ?? ""
+        let newMessage = Message(content: content, created: date, senderId: senderID, senderName: senderName)
+        return newMessage
     }
     
     //MARK: Setup UI
@@ -76,12 +105,16 @@ class ConversationViewController: UIViewController {
 
 //MARK: Lifecycle
 extension ConversationViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupNavigation()
         setupTableView()
-        // Do any additional setup after loading the view.
+        fetchAllMessagesForChannel()
+//        guard let channel = channel else {return}
+//        db.collection("channels").document(channel.identifier).collection("messages").addDocument(data: ["content":"hello", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -96,21 +129,24 @@ extension ConversationViewController {
 
 extension ConversationViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (indexPath.row % 2 == 0) {
-            let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
-            cell?.configure(model[indexPath.row])
+        
+        let message = messages[indexPath.row]
+        
+        if message.senderId == uuid {
+            let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
+            cell?.configure(message.content)
             cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
-            cell?.configure(model[indexPath.row])
+            let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
+            cell?.configure(message)
             cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.count
+        return messages.count
     }
     
 }
