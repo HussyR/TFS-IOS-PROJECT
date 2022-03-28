@@ -84,14 +84,14 @@ class ConversationsListViewController: UIViewController {
     
     @objc private func presentSettingsVC() {
         let vc = ThemesViewController()
-//        vc.delegate = self
         vc.theme = theme
-        // Здесь может вознукнуть retain cycle, но у меня нету сильной ссылки на новый контроллер, поэтому даже без weak не будет retain cycle, аналогично с делагатом
         vc.closure = { [weak self] theme in
             guard let self = self else {return}
-            UserDefaults.standard.set(theme.rawValue, forKey: "theme")
             self.theme = theme
             self.setupTheme()
+            DispatchQueue.global(qos: .background).async {
+                DataManagerGCD.shared.writeThemeData(theme: theme.rawValue)
+            }
         }
         navigationController?.pushViewController(vc, animated: true)
     }
