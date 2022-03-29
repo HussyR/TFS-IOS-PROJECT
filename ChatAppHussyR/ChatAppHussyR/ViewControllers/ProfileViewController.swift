@@ -16,7 +16,7 @@ enum SaveMethod {
 
 class ProfileViewController: UIViewController {
 
-    private let queue = OperationQueue()
+//    private let queue = OperationQueue()
     var theme: Theme = .classic
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -84,23 +84,6 @@ class ProfileViewController: UIViewController {
         }
     }
     
-    @objc private func saveOperation() {
-        let operation = DataManagerOperation()
-        showButtons(show: false)
-        activityIndicator.startAnimating()
-        let profileData = makeProfileModel()
-        operation.profileData = profileData
-        operation.completion = { success in
-            print("data saved")
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .operation)
-                print(success)
-            }
-        }
-        queue.addOperation(operation)
-    }
-    
     // MARK: - Logic
     
     private func makeProfileModel() -> ProfileModel {
@@ -109,12 +92,6 @@ class ProfileViewController: UIViewController {
         let imageData = avatarImageView.image?.pngData()
         let profileData = ProfileModel(name: name, description: description, image: imageData)
         return profileData
-    }
-    
-    // MARK: - Подумать над общим вызовом
-    
-    private func saveGCDorOperation() {
-        
     }
     
     // Метод показывает алерты и в случае нажатия повторения вызывает соотв. методы сохранения
@@ -139,7 +116,7 @@ class ProfileViewController: UIViewController {
                 case .GCD:
                     self.saveGCD()
                 case .operation:
-                    self.saveOperation()
+                    print("Раньше здесь было сохранение через Operations))")
                 }
             }))
             self.present(alert, animated: true)
@@ -200,8 +177,7 @@ class ProfileViewController: UIViewController {
     private func isEdit(isEdit: Bool) {
         editTextButton.isHidden = isEdit
         cancelButton.isHidden = !isEdit
-        saveOperationButton.isHidden = !isEdit
-        saveGCDButton.isHidden = !isEdit
+        saveButton.isHidden = !isEdit
         nameTextField.isUserInteractionEnabled = isEdit
         descriptionTextView.isUserInteractionEnabled = isEdit
     }
@@ -216,15 +192,11 @@ class ProfileViewController: UIViewController {
     }
     
     private func showButtons(show: Bool) {
-        saveGCDButton.isEnabled = show
-        saveOperationButton.isEnabled = show
-        
+        saveButton.isEnabled = show
         if show {
-            saveGCDButton.alpha = 1
-            saveOperationButton.alpha = 1
+            saveButton.alpha = 1
         } else {
-            saveGCDButton.alpha = 0.5
-            saveOperationButton.alpha = 0.5
+            saveButton.alpha = 0.5
         }
         
     }
@@ -261,8 +233,7 @@ class ProfileViewController: UIViewController {
         editAvatarButton.addTarget(self, action: #selector(editImageTapped), for: .touchUpInside)
         editTextButton.addTarget(self, action: #selector(editTextTapped), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancelEditing), for: .touchUpInside)
-        saveGCDButton.addTarget(self, action: #selector(saveGCD), for: .touchUpInside)
-        saveOperationButton.addTarget(self, action: #selector(saveOperation), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveGCD), for: .touchUpInside)
     }
     
     // MARK: - Setup UI Layout
@@ -277,8 +248,7 @@ class ProfileViewController: UIViewController {
         
         view.addSubview(nameTextField)
         view.addSubview(descriptionTextView)
-        view.addSubview(saveGCDButton)
-        view.addSubview(saveOperationButton)
+        view.addSubview(saveButton)
         view.addSubview(cancelButton)
         view.addSubview(editTextButton)
         view.addSubview(activityIndicator)
@@ -318,20 +288,15 @@ class ProfileViewController: UIViewController {
             descriptionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             descriptionTextView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -100),
             
-            saveGCDButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            saveGCDButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-            saveGCDButton.heightAnchor.constraint(equalToConstant: 40),
-            saveGCDButton.trailingAnchor.constraint(equalTo: saveOperationButton.leadingAnchor, constant: -10),
-            saveGCDButton.widthAnchor.constraint(equalTo: saveOperationButton.widthAnchor),
-            
-            saveOperationButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            saveOperationButton.bottomAnchor.constraint(equalTo: saveGCDButton.bottomAnchor),
-            saveOperationButton.heightAnchor.constraint(equalToConstant: 40),
+            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+            saveButton.heightAnchor.constraint(equalToConstant: 40),
+            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             cancelButton.heightAnchor.constraint(equalToConstant: 40),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             cancelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            cancelButton.bottomAnchor.constraint(equalTo: saveGCDButton.topAnchor, constant: -10),
+            cancelButton.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -10),
             
             editTextButton.heightAnchor.constraint(equalToConstant: 40),
             editTextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -423,25 +388,12 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let saveGCDButton: UIButton = {
+    let saveButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isEnabled = false
         button.backgroundColor = .black.withAlphaComponent(0.04)
-        button.setTitle("Save GCD", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.layer.cornerRadius = 14
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        button.alpha = 0.5
-        return button
-    }()
-    
-    let saveOperationButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isEnabled = false
-        button.backgroundColor = .black.withAlphaComponent(0.04)
-        button.setTitle("Save Operation", for: .normal)
+        button.setTitle("Save", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.layer.cornerRadius = 14
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
@@ -482,7 +434,6 @@ extension ProfileViewController {
         
         nameTextField.delegate = self
         descriptionTextView.delegate = self
-        queue.maxConcurrentOperationCount = 2
         
         readProfileData()
     }

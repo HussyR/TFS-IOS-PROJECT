@@ -112,12 +112,11 @@ extension ConversationViewController {
         setupNavigation()
         setupTableView()
         fetchAllMessagesForChannel()
-//        guard let channel = channel else {return}
+//        guard let channel = channel else { return }
 //        db.collection("channels")
 //            .document(channel.identifier)
 //            .collection("messages")
 //            .addDocument(data: ["content": "hello", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
-        
     }
     
     override func viewWillAppear( _ animated: Bool) {
@@ -125,7 +124,6 @@ extension ConversationViewController {
         setupTheme()
         tableView.reloadData()
     }
-    
 }
 
 // MARK: - UITableViewDataSource, UITableViewDelegate
