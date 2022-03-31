@@ -116,7 +116,7 @@ extension ConversationViewController {
 //        db.collection("channels")
 //            .document(channel.identifier)
 //            .collection("messages")
-//            .addDocument(data: ["content": "hello", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
+//            .addDocument(data: ["content": "У меня такая же проблема парни)", "senderID": uuid, "created": Timestamp(date: Date()), "senderName": "Danila"])
     }
     
     override func viewWillAppear( _ animated: Bool) {

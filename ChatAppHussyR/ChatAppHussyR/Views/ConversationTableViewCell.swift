@@ -57,6 +57,8 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         dateLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
         nameLabel.setContentHuggingPriority(UILayoutPriority(250), for: .horizontal)
         
+        // Нужно чтобы пропали ворнинги во view иерархии (name, message) layout issues.
+        nameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
         NSLayoutConstraint.activate([
             
             avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -121,12 +123,16 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         }
 //         Дата
         dateFormatter = DateFormatter()
+        dateFormatter?.timeZone = TimeZone(abbreviation: "GMT")
         
         let limitDate = Date(timeIntervalSinceNow: -60 * 60 * 24)
         guard let date = date else { return }
+        print(date)
         if date.timeIntervalSince(limitDate) >= 0 {
+            print("small")
             dateFormatter?.dateFormat = "HH:mm"
         } else {
+            print("big")
             dateFormatter?.dateFormat = "dd MMM"
         }
         dateLabel.text = dateFormatter?.string(from: date)

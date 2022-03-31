@@ -85,7 +85,9 @@ class ConversationsListViewController: UIViewController {
     
     @objc private func createNewChannelAction() {
         let alert = UIAlertController(title: "Создать новый канал", message: "Впишите название канала", preferredStyle: .alert)
-        alert.addTextField()
+        alert.addTextField { tf in
+            tf.placeholder = "Channel name"
+        }
         let action = UIAlertAction(title: "OK", style: .default) { [weak self] _ in
             guard let tf = alert.textFields?[0],
                   let name = tf.text
