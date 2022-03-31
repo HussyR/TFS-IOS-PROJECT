@@ -36,6 +36,21 @@ class ConversationsListViewController: UIViewController {
     // MARK: - Firebase get all channels
     
     private func fetchAllChannelsFirebase() {
+        // Сортировка
+//        channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { [weak self] snap, error in
+//            guard let self = self,
+//                  error == nil
+//            else { return }
+//            var newChannels = [Channel]()
+//            snap?.documents.forEach { [weak self] in
+//                guard let self = self else { return }
+//                let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
+//                newChannels.append(newChannel)
+//            }
+//            self.channels = newChannels
+//            self.tableView.reloadData()
+//        }
+        
         channelsReference.addSnapshotListener { [weak self] snap, error in
             guard let self = self,
                   error == nil
@@ -46,9 +61,6 @@ class ConversationsListViewController: UIViewController {
                 let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
                 newChannels.append(newChannel)
             }
-//            self.channels = newChannels.sorted {
-//                $0.lastActivity <= $1.lastActivity
-//            }
             self.channels = newChannels
             self.tableView.reloadData()
         }

@@ -123,16 +123,13 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         }
 //         Дата
         dateFormatter = DateFormatter()
-        dateFormatter?.timeZone = TimeZone(abbreviation: "GMT")
+//        dateFormatter?.timeZone = TimeZone(abbreviation: "GMT")
         
         let limitDate = Date(timeIntervalSinceNow: -60 * 60 * 24)
         guard let date = date else { return }
-        print(date)
         if date.timeIntervalSince(limitDate) >= 0 {
-            print("small")
             dateFormatter?.dateFormat = "HH:mm"
         } else {
-            print("big")
             dateFormatter?.dateFormat = "dd MMM"
         }
         dateLabel.text = dateFormatter?.string(from: date)
