@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 struct Channel {
     let identifier: String
@@ -19,4 +20,24 @@ struct Message {
     let created: Date
     let senderId: String
     let senderName: String
+}
+
+extension Message {
+    func toDict() -> [String: Any] {
+        return [
+            "content": content,
+            "senderID": senderId,
+            "created": created,
+            "senderName": senderName
+        ]
+    }
+}
+
+extension Message {
+    init (dictionary: [String: Any]) {
+        content = (dictionary["content"] as? String) ?? ""
+        senderId = (dictionary["senderID"] as? String) ?? ""
+        created = (dictionary["created"] as? Timestamp)?.dateValue() ?? Date()
+        senderName = (dictionary["senderName"] as? String) ?? ""
+    }
 }

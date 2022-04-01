@@ -102,7 +102,8 @@ class ConversationsListViewController: UIViewController {
         }
         let action = UIAlertAction(title: "OK", style: .default) { [weak self] _ in
             guard let tf = alert.textFields?[0],
-                  let name = tf.text
+                  let name = tf.text,
+                  !name.isEmpty
             else { return }
             self?.writeChannelToFirebase(name: name)
         }
