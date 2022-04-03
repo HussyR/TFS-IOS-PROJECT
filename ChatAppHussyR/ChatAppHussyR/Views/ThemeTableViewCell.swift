@@ -22,7 +22,7 @@ class ThemeTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
         print(#function)
 
-        if (isSelected) {
+        if isSelected {
             customBackgroundView.layer.borderWidth = 2
             customBackgroundView.layer.borderColor = UIColor.systemBlue.cgColor
         } else {
@@ -32,7 +32,7 @@ class ThemeTableViewCell: UITableViewCell {
         
     }
     
-    //MARK: SetupUI
+    // MARK: - SetupUI
     
     private func setupUI() {
         selectionStyle = .none
@@ -65,7 +65,7 @@ class ThemeTableViewCell: UITableViewCell {
         ])
     }
     
-    //MARK: Configure
+    // MARK: - Configure
     
     public func configure(with backgroundColor: UIColor, _ leftColor: UIColor, _ rightColor: UIColor, _ text: String) {
         customBackgroundView.backgroundColor = backgroundColor
@@ -74,7 +74,7 @@ class ThemeTableViewCell: UITableViewCell {
         label.text = text
     }
     
-    //MARK: UIElements
+    // MARK: - UIElements
     
     let customBackgroundView: UIView = {
         let view = UIView()
@@ -108,8 +108,7 @@ class ThemeTableViewCell: UITableViewCell {
         return label
     }()
     
-    
-    //MARK: Others
+    // MARK: - Others
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

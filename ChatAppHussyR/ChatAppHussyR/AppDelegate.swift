@@ -6,16 +6,20 @@
 //
 
 import UIKit
+import Firebase
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        FirebaseApp.configure()
+        
         window = UIWindow()
         let vc = ConversationsListViewController()
         let themeRawValue = DataManagerGCD.shared.readThemeData()
-        vc.theme = Theme.init(rawValue: themeRawValue) ?? .classic
+        vc.theme = Theme(rawValue: themeRawValue) ?? .classic
         
         let nav = UINavigationController(rootViewController: vc)
         window?.rootViewController = nav
@@ -44,4 +48,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
 }
-

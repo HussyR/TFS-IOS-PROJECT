@@ -8,7 +8,7 @@
 import UIKit
 
 protocol MessageCellConfiguration {
-    var message: String? {get set}
+    var message: String? { get set }
 }
 
 class RightTableViewCell: UITableViewCell, MessageCellConfiguration {
@@ -22,12 +22,13 @@ class RightTableViewCell: UITableViewCell, MessageCellConfiguration {
         setupLayout()
     }
     
-    //MARK: Others
+    // MARK: - Others
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: Setup layout
+    // MARK: - Setup layout
     
     private func setupLayout() {
         contentView.addSubview(backView)
@@ -42,7 +43,7 @@ class RightTableViewCell: UITableViewCell, MessageCellConfiguration {
             backView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: 5),
             backView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: -5),
             backView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -5),
-            backView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 5),
+            backView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 5)
         ]
         
         NSLayoutConstraint.activate(constaints)
@@ -75,7 +76,7 @@ class RightTableViewCell: UITableViewCell, MessageCellConfiguration {
         messageLabel.text = message
     }
     
-    //MARK: UIElements
+    // MARK: - UIElements
     
     let backView: UIView = {
         let view = UIView()

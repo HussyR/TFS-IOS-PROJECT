@@ -6,26 +6,27 @@
 //
 
 import UIKit
+import Firebase
 
 class ConversationViewController: UIViewController {
     
     var theme = Theme.classic
     
-    let model = [
-        "My first message hehehe, how is it",
-        "There are five types of schools in the US educational system",
-        "They are: kindergarten, elementary school, middle school, high school and private school",
-        "Children go to kindergarten when they are 5 years old They go to elementary school from ages 6 through 11 (1-5 grades), middle school from ages 12 through 14 (6-8 grades) and high school from ages 15 through 19 (9-12 grades)",
-        "About 90 percent of all children attend public school, which is free.",
-        "The other 10 percent go I private schools, which often include religious education"
-    ]
+    var channel: Channel?
+    var messages = [Message]()
+    private lazy var db = Firestore.firestore()
+    private lazy var reference = db.collection("channels")
     
-    var name: String?
+    var uuid: String {
+        UIDevice.current.identifierForVendor?.uuidString ?? ""
+    }
     
+    var bottomConstraint: NSLayoutConstraint?
     
-    //MARK: Navigation and theme
+    // MARK: - Navigation and theme
+    
     private func setupNavigation() {
-        navigationItem.title = name
+        navigationItem.title = channel?.name
     }
     
     private func setupTheme() {
@@ -39,78 +40,205 @@ class ConversationViewController: UIViewController {
         }
     }
     
-    //MARK: Setup UI
+    // MARK: - SetupActions
     
-    private func setupTableView() {
+    private func setupActions() {
+        sendButton.addTarget(self, action: #selector(writeNewMessage), for: .touchUpInside)
+        textField.addTarget(self, action: #selector(changeValueOfTextField), for: .editingChanged)
+    }
+    
+    // MARK: - Logic
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardMove), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardMove), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    private func fetchAllMessagesForChannel() {
+        guard let channel = channel else { return }
+        db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
+            guard let self = self,
+                  error == nil
+            else { return }
+            var newMessages = [Message]()
+            snap?.documents.forEach {
+                let message = Message(dictionary: $0.data())
+                newMessages.append(message)
+            }
+            self.messages = newMessages.sorted {
+                $0.created <= $1.created
+            }
+            self.tableView.reloadData()
+        }
+    }
+    
+    @objc private func keyboardMove(notification: NSNotification) {
+        if let userInfo = notification.userInfo {
+            if let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+                let isShowKeyboardNotification = notification.name == UIResponder.keyboardWillShowNotification
+                bottomConstraint?.constant = isShowKeyboardNotification ? -keyboardFrame.height: 0
+                view.layoutIfNeeded()
+                UIView.animate(withDuration: 0, delay: 0, options: .curveEaseOut) {
+                    
+                }
+            }
+        }
+    }
+    
+    @objc private func writeNewMessage() {
+        guard let messageText = textField.text,
+              !messageText.isEmpty
+        else { return }
+        let message = Message(content: messageText, created: Date(), senderId: uuid, senderName: "Danila")
+        guard let channel = channel else { return }
+        db.collection("channels")
+            .document(channel.identifier)
+            .collection("messages")
+            .addDocument(data: message.toDict())
+        textField.text = ""
+    }
+    
+    @objc private func changeValueOfTextField() {
+        let text = textField.text ?? ""
+        sendButton.isEnabled = text.isEmpty ? false : true
+    }
+    
+    // MARK: - Setup UI
+    
+    private func setupUI() {
         view.addSubview(tableView)
+        view.addSubview(viewForSendMessage)
         
+        bottomConstraint = viewForSendMessage.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        guard let bottomConstraint = bottomConstraint else {
+            return
+        }
         let constraints = [
+            bottomConstraint,
+            viewForSendMessage.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            viewForSendMessage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            viewForSendMessage.heightAnchor.constraint(equalToConstant: 48),
+            
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: viewForSendMessage.topAnchor)
         ]
         
         NSLayoutConstraint.activate(constraints)
         
         tableView.register(LeftTableViewCell.self, forCellReuseIdentifier: LeftTableViewCell.identifier)
         tableView.register(RightTableViewCell.self, forCellReuseIdentifier: RightTableViewCell.identifier)
-        tableView.delegate = self
-        tableView.dataSource = self
     }
     
-    //MARK: UIElements
-    let tableView : UITableView = {
+    private func setupViewForSendMessage() {
+        viewForSendMessage.addSubview(textField)
+        viewForSendMessage.addSubview(sendButton)
+        
+        NSLayoutConstraint.activate([
+            sendButton.topAnchor.constraint(equalTo: viewForSendMessage.topAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: viewForSendMessage.bottomAnchor),
+            sendButton.trailingAnchor.constraint(equalTo: viewForSendMessage.trailingAnchor),
+            sendButton.widthAnchor.constraint(equalToConstant: 58),
+            
+            textField.leadingAnchor.constraint(equalTo: viewForSendMessage.leadingAnchor, constant: 8),
+            textField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
+            textField.topAnchor.constraint(equalTo: viewForSendMessage.topAnchor),
+            textField.bottomAnchor.constraint(equalTo: viewForSendMessage.bottomAnchor)
+        ])
+    }
+    
+    // MARK: - UIElements
+    
+    let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .white
-        tableView.allowsSelection = false
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 52
         tableView.separatorStyle = .none
         return tableView
     }()
+    
+    let viewForSendMessage: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    let textField: UITextField = {
+        let tf = UITextField()
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.placeholder = "Enter your message..."
+        return tf
+    }()
+    
+    let sendButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Send", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.setTitleColor(UIColor.gray, for: .disabled)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isEnabled = false
+        return button
+    }()
+    
 }
 
+// MARK: - Lifecycle
 
-
-//MARK: Lifecycle
 extension ConversationViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupNavigation()
-        setupTableView()
-        // Do any additional setup after loading the view.
+        setupUI()
+        setupViewForSendMessage()
+        setupActions()
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        fetchAllMessagesForChannel()
+        setupNotifications()
+        
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear( _ animated: Bool) {
+        super.viewWillAppear(animated)
         setupTheme()
         tableView.reloadData()
     }
-    
 }
 
-//MARK: UITableViewDataSource, UITableViewDelegate
+// MARK: - UITableViewDataSource, UITableViewDelegate
 
 extension ConversationViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (indexPath.row % 2 == 0) {
-            let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
-            cell?.configure(model[indexPath.row])
+        
+        let message = messages[indexPath.row]
+        
+        if message.senderId == uuid {
+            let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
+            cell?.configure(message.content)
             cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
-            cell?.configure(model[indexPath.row])
+            let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
+            cell?.configure(message)
             cell?.configure(theme: theme)
             return cell ?? UITableViewCell()
         }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.count
+        return messages.count
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        textField.endEditing(true)
     }
     
 }

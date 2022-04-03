@@ -5,8 +5,6 @@
 //  Created by Данил on 22.03.2022.
 //
 
-
-
 import Foundation
 
 class DataManagerGCD {
@@ -77,7 +75,7 @@ class DataManagerGCD {
     
 }
 
-//MARK: Profile Data
+// MARK: - Profile Data
 
 struct ProfileModel: Codable {
     var name: String

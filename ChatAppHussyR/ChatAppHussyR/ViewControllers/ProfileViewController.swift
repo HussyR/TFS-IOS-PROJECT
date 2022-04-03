@@ -14,10 +14,9 @@ enum SaveMethod {
     case operation
 }
 
-
 class ProfileViewController: UIViewController {
 
-    private let queue = OperationQueue()
+//    private let queue = OperationQueue()
     var theme: Theme = .classic
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -33,17 +32,17 @@ class ProfileViewController: UIViewController {
     var oldImage: UIImage?
     var oldImageFlag = false
     
-    //MARK: Actions
+    // MARK: - Actions
     
     @objc private func editImageTapped() {
         print("Выбери изображение профиля")
         let alert = UIAlertController(title: "Изображение профиля", message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Установить из галереи", style: .default, handler: {[weak self] _ in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.showImagePickerController(sourceType: .photoLibrary)
         }))
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.showImagePickerController(sourceType: UIImagePickerController.SourceType.camera)
         }))
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
@@ -63,7 +62,7 @@ class ProfileViewController: UIViewController {
     
     @objc private func cancelEditing() {
         isEdit(isEdit: false)
-        if (hasChanges()) {
+        if hasChanges() {
             nameTextField.text = oldSavedName
             descriptionTextView.text = oldSavedDescription
             avatarImageView.image = oldImage
@@ -75,34 +74,17 @@ class ProfileViewController: UIViewController {
         activityIndicator.startAnimating()
         let profileData = self.makeProfileModel()
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self else {return}
+            guard let self = self else { return }
             let success = DataManagerGCD.shared.writeProfileData(model: profileData)
             print("data saved")
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .GCD)
             }
         }
     }
     
-    @objc private func saveOperation() {
-        let operation = DataManagerOperation()
-        showButtons(show: false)
-        activityIndicator.startAnimating()
-        let profileData = makeProfileModel()
-        operation.profileData = profileData
-        operation.completion = { success in
-            print("data saved")
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else {return}
-                self.showAlertWhenSuccessOrFailSave(isSuccess: success, method: .operation)
-                print(success)
-            }
-        }
-        queue.addOperation(operation)
-    }
-    
-    //MARK: Logic
+    // MARK: - Logic
     
     private func makeProfileModel() -> ProfileModel {
         let name = nameTextField.text ?? ""
@@ -112,15 +94,9 @@ class ProfileViewController: UIViewController {
         return profileData
     }
     
-    
-    //MARK: Подумать над общим вызовом
-    private func saveGCDorOperation() {
-        
-    }
-    
     // Метод показывает алерты и в случае нажатия повторения вызывает соотв. методы сохранения
     private func showAlertWhenSuccessOrFailSave(isSuccess: Bool, method: SaveMethod) {
-        if (isSuccess) {
+        if isSuccess {
                 self.activityIndicator.stopAnimating()
                 let alert = UIAlertController(title: "Данные сохранены", message: nil, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
@@ -131,16 +107,16 @@ class ProfileViewController: UIViewController {
                 self.present(alert, animated: true)
         } else {
             let alert = UIAlertController(title: "Ошибка", message: "", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
                 self.showButtons(show: true)
             }))
-            alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] action in
-                guard let self = self else {return}
+            alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
                 switch method {
                 case .GCD:
                     self.saveGCD()
                 case .operation:
-                    self.saveOperation()
+                    print("Раньше здесь было сохранение через Operations))")
                 }
             }))
             self.present(alert, animated: true)
@@ -149,7 +125,7 @@ class ProfileViewController: UIViewController {
     
     private func readProfileData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self else {return}
+            guard let self = self else { return }
             let result = DataManagerGCD.shared.readProfileData()
             switch result {
             case .success(let model):
@@ -163,8 +139,9 @@ class ProfileViewController: UIViewController {
                     }
                     self.updateSavedUI()
                 }
-            case .failure(_):
+            case .failure(let error):
                 print("Данные профиля не прочитаны")
+                print(error.localizedDescription)
             }
         }
     }
@@ -182,13 +159,12 @@ class ProfileViewController: UIViewController {
         vc.allowsEditing = true
         vc.delegate = self
         print(AVCaptureDevice.authorizationStatus(for: .video).rawValue)
-        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else {return}
+        guard UIImagePickerController.isSourceTypeAvailable(sourceType) else { return }
         if sourceType == .photoLibrary {
             vc.sourceType = sourceType
             self.present(vc, animated: true)
         } else if AVCaptureDevice.authorizationStatus(for: .video) == .authorized ||
-                  AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined
-        {
+                  AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
             vc.sourceType = sourceType
             self.present(vc, animated: true)
         } else {
@@ -201,36 +177,31 @@ class ProfileViewController: UIViewController {
     private func isEdit(isEdit: Bool) {
         editTextButton.isHidden = isEdit
         cancelButton.isHidden = !isEdit
-        saveOperationButton.isHidden = !isEdit
-        saveGCDButton.isHidden = !isEdit
+        saveButton.isHidden = !isEdit
         nameTextField.isUserInteractionEnabled = isEdit
         descriptionTextView.isUserInteractionEnabled = isEdit
     }
     
     private func hasChanges() -> Bool {
-        if (nameTextField.text != oldSavedName ||
+        if nameTextField.text != oldSavedName ||
             descriptionTextView.text != oldSavedDescription ||
-            oldImageFlag) {
+            oldImageFlag {
             return true
         }
         return false
     }
     
     private func showButtons(show: Bool) {
-        saveGCDButton.isEnabled = show
-        saveOperationButton.isEnabled = show
-        
+        saveButton.isEnabled = show
         if show {
-            saveGCDButton.alpha = 1
-            saveOperationButton.alpha = 1
+            saveButton.alpha = 1
         } else {
-            saveGCDButton.alpha = 0.5
-            saveOperationButton.alpha = 0.5
+            saveButton.alpha = 0.5
         }
         
     }
     
-    //MARK: Theme
+    // MARK: - Theme
     
     private func setupTheme() {
         switch theme {
@@ -248,23 +219,24 @@ class ProfileViewController: UIViewController {
             descriptionTextView.textColor = .black
         }
     }
-    //MARK:  Hide keyboard
+    
+    // MARK: - Hide keyboard
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
-    //MARK: Setup UI Actions
+    // MARK: - Setup UI Actions
     
     private func setupUIActions() {
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         editAvatarButton.addTarget(self, action: #selector(editImageTapped), for: .touchUpInside)
         editTextButton.addTarget(self, action: #selector(editTextTapped), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancelEditing), for: .touchUpInside)
-        saveGCDButton.addTarget(self, action: #selector(saveGCD), for: .touchUpInside)
-        saveOperationButton.addTarget(self, action: #selector(saveOperation), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveGCD), for: .touchUpInside)
     }
     
-    //MARK: Setup UI Layout
+    // MARK: - Setup UI Layout
     
     private func setupLayout() {
         view.addSubview(navigationView)
@@ -276,8 +248,7 @@ class ProfileViewController: UIViewController {
         
         view.addSubview(nameTextField)
         view.addSubview(descriptionTextView)
-        view.addSubview(saveGCDButton)
-        view.addSubview(saveOperationButton)
+        view.addSubview(saveButton)
         view.addSubview(cancelButton)
         view.addSubview(editTextButton)
         view.addSubview(activityIndicator)
@@ -286,7 +257,6 @@ class ProfileViewController: UIViewController {
         let avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: 240)
         avatarWidthConstraint.priority = UILayoutPriority(999)
 
-        
         NSLayoutConstraint.activate([
             navigationView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             navigationView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -318,20 +288,15 @@ class ProfileViewController: UIViewController {
             descriptionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             descriptionTextView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -100),
             
-            saveGCDButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            saveGCDButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-            saveGCDButton.heightAnchor.constraint(equalToConstant: 40),
-            saveGCDButton.trailingAnchor.constraint(equalTo: saveOperationButton.leadingAnchor, constant: -10),
-            saveGCDButton.widthAnchor.constraint(equalTo: saveOperationButton.widthAnchor),
-            
-            saveOperationButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            saveOperationButton.bottomAnchor.constraint(equalTo: saveGCDButton.bottomAnchor),
-            saveOperationButton.heightAnchor.constraint(equalToConstant: 40),
+            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+            saveButton.heightAnchor.constraint(equalToConstant: 40),
+            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             cancelButton.heightAnchor.constraint(equalToConstant: 40),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             cancelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            cancelButton.bottomAnchor.constraint(equalTo: saveGCDButton.topAnchor, constant: -10),
+            cancelButton.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -10),
             
             editTextButton.heightAnchor.constraint(equalToConstant: 40),
             editTextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -344,16 +309,16 @@ class ProfileViewController: UIViewController {
         
     }
     
-    //MARK: UIElements
+    // MARK: - UIElements
     
-    let navigationView : UIView = {
+    let navigationView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor.black.withAlphaComponent(0.04)
         return view
     }()
     
-    let myProfileLabel : UILabel = {
+    let myProfileLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "My Profile"
@@ -371,7 +336,7 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let avatarImageView : UIImageView = {
+    let avatarImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "person"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .black.withAlphaComponent(0.04)
@@ -389,7 +354,7 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let nameTextField : UITextField = {
+    let nameTextField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.isUserInteractionEnabled = false
@@ -400,7 +365,7 @@ class ProfileViewController: UIViewController {
         return textField
     }()
     
-    let descriptionTextView : UITextView = {
+    let descriptionTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .clear
@@ -423,25 +388,12 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let saveGCDButton: UIButton = {
+    let saveButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isEnabled = false
         button.backgroundColor = .black.withAlphaComponent(0.04)
-        button.setTitle("Save GCD", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.layer.cornerRadius = 14
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        button.alpha = 0.5
-        return button
-    }()
-    
-    let saveOperationButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.isEnabled = false
-        button.backgroundColor = .black.withAlphaComponent(0.04)
-        button.setTitle("Save Operation", for: .normal)
+        button.setTitle("Save", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.layer.cornerRadius = 14
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
@@ -468,7 +420,8 @@ class ProfileViewController: UIViewController {
     }()
 }
 
-//MARK: Lifecycle
+// MARK: - Lifecycle
+
 extension ProfileViewController {
     
     override func viewDidLoad() {
@@ -481,7 +434,6 @@ extension ProfileViewController {
         
         nameTextField.delegate = self
         descriptionTextView.delegate = self
-        queue.maxConcurrentOperationCount = 2
         
         readProfileData()
     }
@@ -514,9 +466,11 @@ extension ProfileViewController {
     }
 
 }
-//MARK: UINavigationControllerDelegate, UIImagePickerControllerDelegate
+
+// MARK: - UINavigationControllerDelegate, UIImagePickerControllerDelegate
+
 extension ProfileViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         picker.dismiss(animated: true)
         if let image = info[.originalImage] as? UIImage {
             oldImage = avatarImageView.image
@@ -536,7 +490,7 @@ extension ProfileViewController: UINavigationControllerDelegate, UIImagePickerCo
 
 extension ProfileViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if(hasChanges()) {
+        if hasChanges() {
             print(#function)
             showButtons(show: true)
         } else {
@@ -547,7 +501,7 @@ extension ProfileViewController: UITextFieldDelegate {
 
 extension ProfileViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        if(hasChanges()) {
+        if hasChanges() {
             print(#function)
             showButtons(show: true)
         } else {

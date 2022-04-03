@@ -8,26 +8,27 @@
 import UIKit
 
 protocol ConversationCellConfiguration {
-    var name: String? {get set}
-    var message: String? {get set}
-    var date: Date? {get set}
-    var online: Bool {get set}
-    var hasUnreadMessages: Bool {get set}
+    var name: String? { get set }
+    var message: String? { get set }
+    var date: Date? { get set }
+    var online: Bool? { get set }
+    var hasUnreadMessages: Bool? { get set }
     
 }
 
 class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration {
     
-    //MARK: Properties
+    // MARK: - Properties
+    
     static let identifier = "ConversationTableViewCell"
     var name: String? = "Name"
     var message: String? = "Message"
-    var date: Date? = nil
-    var online: Bool = true
-    var hasUnreadMessages: Bool = true
+    var date: Date?
+    var online: Bool? = true
+    var hasUnreadMessages: Bool? = true
     var dateFormatter: DateFormatter?
     
-    //MARK: Reuse
+    // MARK: - Reuse
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -36,14 +37,12 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         dateLabel.text = ""
     }
     
-   
-   //MARK: Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
     }
     
-    //MARK: Layout
+    // MARK: - Layout
     
     private func setupLayout() {
         contentView.addSubview(nameLabel)
@@ -56,7 +55,10 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         
         dateLabel.setContentHuggingPriority(UILayoutPriority(251), for: .horizontal)
         dateLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
+        nameLabel.setContentHuggingPriority(UILayoutPriority(250), for: .horizontal)
         
+        // Нужно чтобы пропали ворнинги во view иерархии (name, message) layout issues.
+        nameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
         NSLayoutConstraint.activate([
             
             avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -74,14 +76,15 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
             messageLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
             dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            dateLabel.topAnchor.constraint(equalTo: nameLabel.topAnchor)
+            dateLabel.topAnchor.constraint(equalTo: nameLabel.topAnchor),
+            dateLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor)
         ])
         
     }
     
-    //MARK: Configuration and theme
+    // MARK: - Configuration and theme
     
-    public func configure(name: String?, message: String?, date: Date?, online: Bool, hasUnreadMessages: Bool) {
+    public func configure(name: String?, message: String?, date: Date?, online: Bool?, hasUnreadMessages: Bool?) {
         self.name = name
         self.message = message
         self.date = date
@@ -98,7 +101,7 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
             dateLabel.textColor = .white.withAlphaComponent(0.5)
             messageLabel.textColor = .white.withAlphaComponent(0.5)
         default:
-            contentView.backgroundColor = (online ? .yellow.withAlphaComponent(0.05): .white)
+            contentView.backgroundColor = ((online ?? false) ? .yellow.withAlphaComponent(0.05): .white)
             nameLabel.textColor = .black
             messageLabel.textColor = .lightGray
             dateLabel.textColor = .lightGray
@@ -120,9 +123,10 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         }
 //         Дата
         dateFormatter = DateFormatter()
+//        dateFormatter?.timeZone = TimeZone(abbreviation: "GMT")
         
-        let limitDate = Date(timeIntervalSinceNow: -60*60*24)
-        guard let date = date else {return}
+        let limitDate = Date(timeIntervalSinceNow: -60 * 60 * 24)
+        guard let date = date else { return }
         if date.timeIntervalSince(limitDate) >= 0 {
             dateFormatter?.dateFormat = "HH:mm"
         } else {
@@ -131,17 +135,14 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         dateLabel.text = dateFormatter?.string(from: date)
         
 //        Online
-        contentView.backgroundColor = (online ? .yellow.withAlphaComponent(0.04): .white)
+        contentView.backgroundColor = ((online ?? false) ? .yellow.withAlphaComponent(0.04): .white)
         
 //        Has unread messages
-        guard message != nil else {return}
-        messageLabel.font = (hasUnreadMessages ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13))
+        guard message != nil else { return }
+        messageLabel.font = ((hasUnreadMessages ?? false) ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13))
     }
     
-
-    //MARK: UIElements
-    
-
+    // MARK: - UIElements
     
     let avatarImageView: UIImageView = {
         let imageView = UIImageView()
@@ -178,7 +179,8 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration 
         return label
     }()
     
-    //MARK: Others
+    // MARK: - Others
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
