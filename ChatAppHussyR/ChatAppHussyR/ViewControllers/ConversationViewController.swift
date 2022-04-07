@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import CoreData
 
 class ConversationViewController: UIViewController {
     
@@ -16,6 +17,7 @@ class ConversationViewController: UIViewController {
     var messages = [Message]()
     private lazy var db = Firestore.firestore()
     private lazy var reference = db.collection("channels")
+    var newCoreDataStack: NewCoreDataStack?
     
     var uuid: String {
         UIDevice.current.identifierForVendor?.uuidString ?? ""
@@ -50,24 +52,83 @@ class ConversationViewController: UIViewController {
     // MARK: - Logic
     
     private func setupNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardMove), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardMove), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardMove),
+                                               name: UIResponder.keyboardWillShowNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardMove),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(coreDataContextSave),
+                                               name: Notification.Name.NSManagedObjectContextDidSave,
+                                               object: nil)
     }
     
     private func fetchAllMessagesForChannel() {
         guard let channel = channel else { return }
         db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
             guard let self = self,
-                  error == nil
+                  error == nil,
+                  let snap = snap,
+                  let newCoreDataStack = self.newCoreDataStack
             else { return }
-            var newMessages = [Message]()
-            snap?.documents.forEach {
-                let message = Message(dictionary: $0.data())
-                newMessages.append(message)
+            let messages = snap.documents.map {
+                return Message(dictionary: $0.data())
             }
-            self.messages = newMessages.sorted {
+            // Core Data save
+            newCoreDataStack.performSave(block: { context in
+                let fetchRequest: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), channel.identifier)
+                do {
+                    let results = try context.fetch(fetchRequest)
+                    guard let dbchannel = results.first,
+                          let dbmessages = dbchannel.messages
+                    else { return }
+                    // так как нету кникального id у сообщений нужно чистить их перед каждым сохранением
+                    for dbmessage in dbmessages {
+                        guard let objectMessage = dbmessage as? DBMessage else { continue }
+                        context.delete(objectMessage)
+                    }
+                    
+                    messages.forEach { message in
+                        let dbmessage = DBMessage(context: context)
+                        dbmessage.content = message.content
+                        dbmessage.created = message.created
+                        dbmessage.senderId = message.senderId
+                        dbmessage.senderName = message.senderName
+                        dbchannel.addToMessages(dbmessage)
+                    }
+                    
+                } catch {
+                    print(error.localizedDescription)
+                }
+            })
+        }
+    }
+    
+    @objc private func coreDataContextSave() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self,
+                  let newCoreDataStack = self.newCoreDataStack,
+                  let channel = self.channel
+            else { return }
+            let predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), channel.identifier)
+            guard let dbChannel = newCoreDataStack.fecthChannel(predicate: predicate).first,
+                  let dbMessages = dbChannel.messages?.array as? [DBMessage]
+            else {
+                return
+            }
+            let messages = dbMessages.map { dbMessage in
+                return Message(content: dbMessage.content ?? "",
+                               created: dbMessage.created ?? Date(),
+                               senderId: dbMessage.senderId ?? "",
+                               senderName: dbMessage.senderName ?? "")
+            }
+            self.messages = messages.sorted(by: {
                 $0.created <= $1.created
-            }
+            })
             self.tableView.reloadData()
         }
     }
@@ -163,7 +224,7 @@ class ConversationViewController: UIViewController {
     let viewForSendMessage: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white
+        view.backgroundColor = .lightGray
         return view
     }()
     

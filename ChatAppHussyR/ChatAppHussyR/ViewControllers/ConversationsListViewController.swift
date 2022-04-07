@@ -7,15 +7,20 @@
 
 import UIKit
 import Firebase
+import CoreData
 
 class ConversationsListViewController: UIViewController {
 
     private lazy var db = Firestore.firestore()
     private lazy var channelsReference = db.collection("channels")
+    private let newCoreDataStack = NewCoreDataStack()
     
     var theme = Theme.classic
     var channels = [Channel]()
     var passedName: String?
+    var uuid: String {
+        UIDevice.current.identifierForVendor?.uuidString ?? ""
+    }
     
     // MARK: - Lifecycle
     
@@ -25,6 +30,10 @@ class ConversationsListViewController: UIViewController {
         setupTableView()
         setupNavigationBar()
         fetchAllChannelsFirebase()
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(coreDataContextSave(notification:)),
+                                               name: Notification.Name.NSManagedObjectContextDidSave,
+                                               object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -36,42 +45,49 @@ class ConversationsListViewController: UIViewController {
     // MARK: - Firebase get all channels
     
     private func fetchAllChannelsFirebase() {
-        // Сортировка
-//        channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { [weak self] snap, error in
-//            guard let self = self,
-//                  error == nil
-//            else { return }
-//            var newChannels = [Channel]()
-//            snap?.documents.forEach { [weak self] in
-//                guard let self = self else { return }
-//                let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
-//                newChannels.append(newChannel)
-//            }
-//            self.channels = newChannels
-//            self.tableView.reloadData()
-//        }
-        
-        channelsReference.addSnapshotListener { [weak self] snap, error in
+        channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { [weak self] snap, error in
             guard let self = self,
                   error == nil
             else { return }
-            var newChannels = [Channel]()
-            snap?.documents.forEach { [weak self] in
-                guard let self = self else { return }
-                let newChannel = self.makeChannel(model: $0.data(), id: $0.documentID)
-                newChannels.append(newChannel)
+            self.newCoreDataStack.performSave { context in
+                let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
+                guard let dbchannels = try? context.fetch(fetch) else { return }
+                snap?.documentChanges.forEach({ [weak self] documentC in
+                    guard let self = self else { return }
+                    let channel = Channel(dictionary: documentC.document.data(), identifier: documentC.document.documentID)
+                    if let dbchannelForChange = self.doesChannelExist(id: channel.identifier, dbChannels: dbchannels) {
+                        dbchannelForChange.lastActivity = channel.lastActivity
+                        dbchannelForChange.lastMessage = channel.lastMessage
+                    } else {
+                        let dbchannel = DBChannel(context: context)
+                        dbchannel.name = channel.name
+                        dbchannel.identifier = channel.identifier
+                        dbchannel.lastMessage = channel.lastMessage
+                        dbchannel.lastActivity = channel.lastActivity
+                    }
+                })
             }
-            self.channels = newChannels
-            self.tableView.reloadData()
         }
     }
     
-    private func makeChannel(model: [String: Any], id: String) -> Channel {
-        let name = model["name"] as? String ?? ""
-        let lastMessage = model["lastMessage"] as? String
-        let date = (model["lastActivity"] as? Timestamp)?.dateValue()
-        let newChannel = Channel(identifier: id, name: name, lastMessage: lastMessage, lastActivity: date)
-        return newChannel
+    private func doesChannelExist(id: String, dbChannels: [DBChannel]) -> DBChannel? {
+        guard let channel = dbChannels.filter({ $0.identifier == id }).first else { return nil }
+        return channel
+    }
+    
+    @objc private func coreDataContextSave(notification: Notification) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let dbchannelsforshow = self.newCoreDataStack.fecthChannels()
+            let channelsForTableView = dbchannelsforshow.map { dbchannel in
+                return Channel(identifier: dbchannel.identifier ?? "",
+                               name: dbchannel.name ?? "",
+                               lastMessage: dbchannel.lastMessage ?? "",
+                               lastActivity: dbchannel.lastActivity ?? Date())
+            }
+            self.channels = channelsForTableView
+            self.tableView.reloadData()
+        }
     }
     
     // MARK: - SetupUI
@@ -114,7 +130,9 @@ class ConversationsListViewController: UIViewController {
     }
     
     private func writeChannelToFirebase(name: String) {
-        channelsReference.addDocument(data: ["name": name])
+        let ref = channelsReference.addDocument(data: ["name": name])
+        let message = Message(content: "First message", created: Date(), senderId: uuid, senderName: "Danila")
+        ref.collection("messages").addDocument(data: message.toDict())
     }
     
     // MARK: - Navigation and theme
@@ -227,6 +245,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
 //        }
         let vc = ConversationViewController()
         vc.channel = channels[indexPath.row]
+        vc.newCoreDataStack = self.newCoreDataStack
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
