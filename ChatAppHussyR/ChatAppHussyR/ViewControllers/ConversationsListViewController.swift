@@ -85,7 +85,9 @@ class ConversationsListViewController: UIViewController {
                                lastMessage: dbchannel.lastMessage ?? "",
                                lastActivity: dbchannel.lastActivity ?? Date())
             }
-            self.channels = channelsForTableView
+            self.channels = channelsForTableView.sorted(by: {
+                $0.lastActivity >= $1.lastActivity
+            })
             self.tableView.reloadData()
         }
     }
