@@ -13,6 +13,7 @@
 		8306190D27D6148C002EBDC4 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8306190C27D6148C002EBDC4 /* Model.swift */; };
 		8306191227D66807002EBDC4 /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8306191127D66807002EBDC4 /* ConversationViewController.swift */; };
 		8316D19627DE089500CBB75D /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8316D19527DE089500CBB75D /* ThemesViewController.swift */; };
+		83242A682800158A0094319A /* OldCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83242A672800158A0094319A /* OldCoreDataStack.swift */; };
 		8352DD0527DF482C002A05A8 /* ThemeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8352DD0427DF482C002A05A8 /* ThemeTableViewCell.swift */; };
 		835CFA0627BF8825004B6BD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835CFA0527BF8825004B6BD6 /* AppDelegate.swift */; };
 		835CFA0A27BF8825004B6BD6 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835CFA0927BF8825004B6BD6 /* ProfileViewController.swift */; };
@@ -35,6 +36,7 @@
 		8306190C27D6148C002EBDC4 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		8306191127D66807002EBDC4 /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
 		8316D19527DE089500CBB75D /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
+		83242A672800158A0094319A /* OldCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCoreDataStack.swift; sourceTree = "<group>"; };
 		8352DD0427DF482C002A05A8 /* ThemeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTableViewCell.swift; sourceTree = "<group>"; };
 		835CFA0227BF8825004B6BD6 /* ChatAppHussyR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatAppHussyR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		835CFA0527BF8825004B6BD6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 				83ADFC7927EA222200355F8A /* DataManagerGCD.swift */,
 				83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */,
 				83D61A9B27FB35810050760B /* NewCoreDataStack.swift */,
+				83242A672800158A0094319A /* OldCoreDataStack.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 				8306191227D66807002EBDC4 /* ConversationViewController.swift in Sources */,
 				83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */,
 				8352DD0527DF482C002A05A8 /* ThemeTableViewCell.swift in Sources */,
+				83242A682800158A0094319A /* OldCoreDataStack.swift in Sources */,
 				83FDCF1927D8E67600F2E410 /* LeftTableViewCell.swift in Sources */,
 				83FDCF1727D8E66600F2E410 /* RightTableViewCell.swift in Sources */,
 				835CFA0A27BF8825004B6BD6 /* ProfileViewController.swift in Sources */,

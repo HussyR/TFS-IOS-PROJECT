@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class NewCoreDataStack {
+final class NewCoreDataStack {
     private lazy var container: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ChatAppHussyR")
         container.loadPersistentStores { desc, error in
@@ -41,7 +41,7 @@ class NewCoreDataStack {
         do {
             let channels = try container.viewContext.fetch(fetch)
             #if COREDATALOG
-            print("Данные о \(channels.count) каналах считаны")
+            print("Данные о канале считаны")
             #endif
             return channels
         } catch {
