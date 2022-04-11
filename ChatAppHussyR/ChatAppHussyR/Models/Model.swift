@@ -11,8 +11,8 @@ import Firebase
 struct Channel {
     let identifier: String
     let name: String
-    let lastMessage: String?
-    let lastActivity: Date?
+    let lastMessage: String
+    let lastActivity: Date
 }
 
 struct Message {
@@ -39,5 +39,14 @@ extension Message {
         senderId = (dictionary["senderID"] as? String) ?? ""
         created = (dictionary["created"] as? Timestamp)?.dateValue() ?? Date()
         senderName = (dictionary["senderName"] as? String) ?? ""
+    }
+}
+
+extension Channel {
+    init (dictionary: [String: Any], identifier: String) {
+        self.identifier = identifier
+        name = dictionary["name"] as? String ?? ""
+        lastMessage = (dictionary["lastMessage"] as? String) ?? ""
+        lastActivity = (dictionary["lastActivity"] as? Timestamp)?.dateValue() ?? Date()
     }
 }
