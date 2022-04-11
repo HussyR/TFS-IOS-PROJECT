@@ -14,10 +14,29 @@ class ConversationViewController: UIViewController {
     var theme = Theme.classic
     
     var channel: Channel?
-    var messages = [Message]()
+//    var messages = [Message]()
     private lazy var db = Firestore.firestore()
     private lazy var reference = db.collection("channels")
     var newCoreDataStack: NewCoreDataStack?
+    var isFirstLaunch = true
+    
+    private lazy var fetchedResultController: NSFetchedResultsController<DBMessage> = {
+        let fetch = DBMessage.fetchRequest()
+        let predicate = NSPredicate(format: "%K == %@", #keyPath(DBMessage.channel.identifier), channel?.identifier ?? "")
+        fetch.predicate = predicate
+        let sortD = NSSortDescriptor(key: #keyPath(DBMessage.created), ascending: true)
+        fetch.sortDescriptors = [sortD]
+        
+        guard let newCoreDataStack = newCoreDataStack else {
+            fatalError("error")
+        }
+        let controller = NSFetchedResultsController(
+            fetchRequest: fetch,
+            managedObjectContext: newCoreDataStack.viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil)
+        return controller
+    }()
     
     var uuid: String {
         UIDevice.current.identifierForVendor?.uuidString ?? ""
@@ -52,18 +71,21 @@ class ConversationViewController: UIViewController {
     // MARK: - Logic
     
     private func setupNotifications() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardMove),
-                                               name: UIResponder.keyboardWillShowNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardMove),
-                                               name: UIResponder.keyboardWillHideNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(coreDataContextSave),
-                                               name: Notification.Name.NSManagedObjectContextDidSave,
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardMove),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardMove),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil)
+//        NotificationCenter.default.addObserver(
+//            self,
+//            selector: #selector(coreDataContextSave),
+//            name: Notification.Name.NSManagedObjectContextDidSave,
+//            object: nil)
     }
     
     private func fetchAllMessagesForChannel() {
@@ -74,33 +96,31 @@ class ConversationViewController: UIViewController {
                   let snap = snap,
                   let newCoreDataStack = self.newCoreDataStack
             else { return }
-            let messages = snap.documents.map {
-                return Message(dictionary: $0.data())
-            }
             // Core Data save
             newCoreDataStack.performSave(block: { context in
                 let fetchRequest: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), channel.identifier)
+                fetchRequest.predicate = NSPredicate(
+                    format: "%K == %@",
+                    #keyPath(DBChannel.identifier),
+                    channel.identifier
+                )
                 do {
                     let results = try context.fetch(fetchRequest)
                     guard let dbchannel = results.first,
-                          let dbmessages = dbchannel.messages
+                          let dbmessages = dbchannel.messages?.array as? [DBMessage]
                     else { return }
-                    // так как нету кникального id у сообщений нужно чистить их перед каждым сохранением
-                    for dbmessage in dbmessages {
-                        guard let objectMessage = dbmessage as? DBMessage else { continue }
-                        context.delete(objectMessage)
+                    snap.documentChanges.forEach { documentChange in
+                        if !self.doesMessageExist(dbmessages: dbmessages, id: documentChange.document.documentID) {
+                            let message = Message(dictionary: documentChange.document.data())
+                            let dbmessage = DBMessage(context: context)
+                            dbmessage.content = message.content
+                            dbmessage.created = message.created
+                            dbmessage.senderId = message.senderId
+                            dbmessage.senderName = message.senderName
+                            dbmessage.identifier = documentChange.document.documentID
+                            dbchannel.addToMessages(dbmessage)
+                        }
                     }
-                    
-                    messages.forEach { message in
-                        let dbmessage = DBMessage(context: context)
-                        dbmessage.content = message.content
-                        dbmessage.created = message.created
-                        dbmessage.senderId = message.senderId
-                        dbmessage.senderName = message.senderName
-                        dbchannel.addToMessages(dbmessage)
-                    }
-                    
                 } catch {
                     print(error.localizedDescription)
                 }
@@ -108,29 +128,11 @@ class ConversationViewController: UIViewController {
         }
     }
     
-    @objc private func coreDataContextSave() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self,
-                  let newCoreDataStack = self.newCoreDataStack,
-                  let channel = self.channel
-            else { return }
-            let predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), channel.identifier)
-            guard let dbChannel = newCoreDataStack.fecthChannel(predicate: predicate).first,
-                  let dbMessages = dbChannel.messages?.array as? [DBMessage]
-            else {
-                return
-            }
-            let messages = dbMessages.map { dbMessage in
-                return Message(content: dbMessage.content ?? "",
-                               created: dbMessage.created ?? Date(),
-                               senderId: dbMessage.senderId ?? "",
-                               senderName: dbMessage.senderName ?? "")
-            }
-            self.messages = messages.sorted(by: {
-                $0.created <= $1.created
-            })
-            self.tableView.reloadData()
+    private func doesMessageExist(dbmessages: [DBMessage], id: String) -> Bool {
+        if dbmessages.filter({ $0.identifier == id }).first != nil {
+            return true
         }
+        return false
     }
     
     @objc private func keyboardMove(notification: NSNotification) {
@@ -265,6 +267,13 @@ extension ConversationViewController {
         fetchAllMessagesForChannel()
         setupNotifications()
         
+        fetchedResultController.delegate = self
+        
+        do {
+          try fetchedResultController.performFetch()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     override func viewWillAppear( _ animated: Bool) {
@@ -279,7 +288,12 @@ extension ConversationViewController {
 extension ConversationViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let message = messages[indexPath.row]
+        let dbmessage = fetchedResultController.object(at: indexPath)
+        let message = Message(
+            content: dbmessage.content ?? "",
+            created: dbmessage.created ?? Date(),
+            senderId: dbmessage.senderId ?? "",
+            senderName: dbmessage.senderName ?? "")
         
         if message.senderId == uuid {
             let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
@@ -295,11 +309,58 @@ extension ConversationViewController: UITableViewDataSource, UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messages.count
+        return fetchedResultController.sections?[section].numberOfObjects ?? 0
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         textField.endEditing(true)
+    }
+    
+}
+
+extension ConversationViewController: NSFetchedResultsControllerDelegate {
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.beginUpdates()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+                    didChange anObject: Any,
+                    at indexPath: IndexPath?,
+                    for type: NSFetchedResultsChangeType,
+                    newIndexPath: IndexPath?) {
+        print("change")
+        switch type {
+        case .insert:
+            guard let newIndexPath = newIndexPath else {
+                return
+            }
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
+        case .delete:
+            guard let indexPath = indexPath else {
+                return
+            }
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        case .move:
+            guard let indexPath = indexPath,
+                  let newIndexPath = newIndexPath
+            else {
+                return
+            }
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
+        case .update:
+            guard let indexPath = indexPath else {
+                return
+            }
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        @unknown default:
+            fatalError()
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.endUpdates()
     }
     
 }
