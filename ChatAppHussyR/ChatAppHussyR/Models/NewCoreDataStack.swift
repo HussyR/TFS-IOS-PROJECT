@@ -18,8 +18,13 @@ final class NewCoreDataStack {
                 print(desc)
             }
         }
+        container.viewContext.automaticallyMergesChangesFromParent = true
         return container
     }()
+    
+    var viewContext: NSManagedObjectContext {
+        return container.viewContext
+    }
     
     public func fecthChannels() -> [DBChannel] {
         let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
