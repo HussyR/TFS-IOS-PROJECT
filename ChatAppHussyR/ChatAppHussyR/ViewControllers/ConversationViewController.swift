@@ -15,6 +15,9 @@ class ConversationViewController: UIViewController {
     
     var channel: Channel?
 //    var messages = [Message]()
+    
+    
+    
     private lazy var db = Firestore.firestore()
     private lazy var reference = db.collection("channels")
     var newCoreDataStack: NewCoreDataStack?
