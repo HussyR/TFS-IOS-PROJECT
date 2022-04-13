@@ -14,6 +14,7 @@
 		8306191227D66807002EBDC4 /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8306191127D66807002EBDC4 /* ConversationViewController.swift */; };
 		8316D19627DE089500CBB75D /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8316D19527DE089500CBB75D /* ThemesViewController.swift */; };
 		83242A682800158A0094319A /* OldCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83242A672800158A0094319A /* OldCoreDataStack.swift */; };
+		83325DCD280752AF0015276F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 83325DCC280752AF0015276F /* GoogleService-Info.plist */; };
 		8352DD0527DF482C002A05A8 /* ThemeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8352DD0427DF482C002A05A8 /* ThemeTableViewCell.swift */; };
 		835CFA0627BF8825004B6BD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835CFA0527BF8825004B6BD6 /* AppDelegate.swift */; };
 		835CFA0A27BF8825004B6BD6 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835CFA0927BF8825004B6BD6 /* ProfileViewController.swift */; };
@@ -23,7 +24,6 @@
 		83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */; };
 		83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9B27FB35810050760B /* NewCoreDataStack.swift */; };
 		83D61AA027FB36990050760B /* ChatAppHussyR.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9E27FB36990050760B /* ChatAppHussyR.xcdatamodeld */; };
-		83E86CF027F1C846006087E9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 83E86CEF27F1C846006087E9 /* GoogleService-Info.plist */; };
 		83FDCF1727D8E66600F2E410 /* RightTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FDCF1627D8E66600F2E410 /* RightTableViewCell.swift */; };
 		83FDCF1927D8E67600F2E410 /* LeftTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FDCF1827D8E67600F2E410 /* LeftTableViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -37,6 +37,7 @@
 		8306191127D66807002EBDC4 /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
 		8316D19527DE089500CBB75D /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
 		83242A672800158A0094319A /* OldCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCoreDataStack.swift; sourceTree = "<group>"; };
+		83325DCC280752AF0015276F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8352DD0427DF482C002A05A8 /* ThemeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTableViewCell.swift; sourceTree = "<group>"; };
 		835CFA0227BF8825004B6BD6 /* ChatAppHussyR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatAppHussyR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		835CFA0527BF8825004B6BD6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -48,7 +49,6 @@
 		83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerOperation.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
 		83D61A9F27FB36990050760B /* ChatAppHussyR.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ChatAppHussyR.xcdatamodel; sourceTree = "<group>"; };
-		83E86CEF27F1C846006087E9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		83FDCF1627D8E66600F2E410 /* RightTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightTableViewCell.swift; sourceTree = "<group>"; };
 		83FDCF1827D8E67600F2E410 /* LeftTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftTableViewCell.swift; sourceTree = "<group>"; };
 		A81DA0398CE2F7E1E0870DF3 /* Pods_ChatAppHussyR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatAppHussyR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,7 +130,7 @@
 		835CFA0427BF8825004B6BD6 /* ChatAppHussyR */ = {
 			isa = PBXGroup;
 			children = (
-				83E86CEF27F1C846006087E9 /* GoogleService-Info.plist */,
+				83325DCC280752AF0015276F /* GoogleService-Info.plist */,
 				8306190E27D61490002EBDC4 /* Models */,
 				8306190B27D4E88B002EBDC4 /* Views */,
 				8306190827D4E6A9002EBDC4 /* ViewControllers */,
@@ -222,7 +222,7 @@
 			files = (
 				835CFA1227BF8827004B6BD6 /* LaunchScreen.storyboard in Resources */,
 				835CFA0F27BF8827004B6BD6 /* Assets.xcassets in Resources */,
-				83E86CF027F1C846006087E9 /* GoogleService-Info.plist in Resources */,
+				83325DCD280752AF0015276F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,7 +466,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "-DCOREDATALOG";
-				PRODUCT_BUNDLE_IDENTIFIER = ru.tinkoff.TinkoffChat;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.tcsbank.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -500,7 +500,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "-DCOREDATALOG";
-				PRODUCT_BUNDLE_IDENTIFIER = ru.tinkoff.TinkoffChat;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.tcsbank.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
