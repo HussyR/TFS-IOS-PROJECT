@@ -14,10 +14,6 @@ class ConversationViewController: UIViewController {
     var theme = Theme.classic
     
     var channel: Channel?
-//    var messages = [Message]()
-    
-    
-    
     private lazy var db = Firestore.firestore()
     private lazy var reference = db.collection("channels")
     var newCoreDataStack: NewCoreDataStack?
@@ -84,11 +80,6 @@ class ConversationViewController: UIViewController {
             selector: #selector(keyboardMove),
             name: UIResponder.keyboardWillHideNotification,
             object: nil)
-//        NotificationCenter.default.addObserver(
-//            self,
-//            selector: #selector(coreDataContextSave),
-//            name: Notification.Name.NSManagedObjectContextDidSave,
-//            object: nil)
     }
     
     private func fetchAllMessagesForChannel() {

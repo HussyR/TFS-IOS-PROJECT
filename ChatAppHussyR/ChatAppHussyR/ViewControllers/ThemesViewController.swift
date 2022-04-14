@@ -114,7 +114,6 @@ extension ThemesViewController: UITableViewDataSource, UITableViewDelegate {
         if let closure = closure {
             closure(theme)
         }
-//        delegate?.themeViewController(themeVC: self, theme: theme)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
