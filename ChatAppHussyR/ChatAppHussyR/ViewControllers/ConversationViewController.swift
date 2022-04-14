@@ -186,6 +186,8 @@ class ConversationViewController: UIViewController {
         
         tableView.register(LeftTableViewCell.self, forCellReuseIdentifier: LeftTableViewCell.identifier)
         tableView.register(RightTableViewCell.self, forCellReuseIdentifier: RightTableViewCell.identifier)
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     private func setupViewForSendMessage() {
@@ -255,9 +257,6 @@ extension ConversationViewController {
         setupViewForSendMessage()
         setupActions()
         
-        tableView.delegate = self
-        tableView.dataSource = self
-        
         fetchAllMessagesForChannel()
         setupNotifications()
         
@@ -268,6 +267,7 @@ extension ConversationViewController {
         } catch {
             print(error.localizedDescription)
         }
+        
     }
     
     override func viewWillAppear( _ animated: Bool) {
