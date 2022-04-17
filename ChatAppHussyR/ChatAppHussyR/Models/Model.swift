@@ -8,14 +8,14 @@
 import Foundation
 import Firebase
 
-struct Channel {
+struct Channel: Hashable {
     let identifier: String
     let name: String
     let lastMessage: String
     let lastActivity: Date
 }
 
-struct Message {
+struct Message: Hashable {
     let content: String
     let created: Date
     let senderId: String

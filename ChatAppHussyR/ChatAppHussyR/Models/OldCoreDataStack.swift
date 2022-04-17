@@ -84,7 +84,7 @@ final class OldCoreDataStack {
         let context = writeContext
         writeContext.perform {
             block(context)
-            if(context.hasChanges) {
+            if context.hasChanges {
                 do {
                     try self.performSave(in: context)
                 } catch {

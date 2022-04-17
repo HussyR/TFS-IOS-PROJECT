@@ -15,12 +15,13 @@
     <entity name="DBMessage" representedClassName="DBMessage" syncable="YES" codeGenerationType="class">
         <attribute name="content" attributeType="String"/>
         <attribute name="created" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="senderId" attributeType="String"/>
         <attribute name="senderName" attributeType="String"/>
         <relationship name="channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DBChannel" inverseName="messages" inverseEntity="DBChannel"/>
     </entity>
     <elements>
         <element name="DBChannel" positionX="-426.7771606445312" positionY="-150.0207824707031" width="128" height="103"/>
-        <element name="DBMessage" positionX="-54" positionY="-9" width="128" height="118"/>
+        <element name="DBMessage" positionX="-54" positionY="-9" width="128" height="119"/>
     </elements>
 </model>
