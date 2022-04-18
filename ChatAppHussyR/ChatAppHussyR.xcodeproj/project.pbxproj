@@ -20,6 +20,8 @@
 		835CFA0A27BF8825004B6BD6 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835CFA0927BF8825004B6BD6 /* ProfileViewController.swift */; };
 		835CFA0F27BF8827004B6BD6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 835CFA0E27BF8827004B6BD6 /* Assets.xcassets */; };
 		835CFA1227BF8827004B6BD6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 835CFA1027BF8827004B6BD6 /* LaunchScreen.storyboard */; };
+		83A01580280DB00C00D5CAE2 /* NewCoreDataCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */; };
+		83A01583280DB28700D5CAE2 /* CoreDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01582280DB28700D5CAE2 /* CoreDataService.swift */; };
 		83ADFC7A27EA222200355F8A /* DataManagerGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7927EA222200355F8A /* DataManagerGCD.swift */; };
 		83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */; };
 		83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9B27FB35810050760B /* NewCoreDataStack.swift */; };
@@ -45,6 +47,8 @@
 		835CFA0E27BF8827004B6BD6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		835CFA1127BF8827004B6BD6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		835CFA1327BF8827004B6BD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataCore.swift; sourceTree = "<group>"; };
+		83A01582280DB28700D5CAE2 /* CoreDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataService.swift; sourceTree = "<group>"; };
 		83ADFC7927EA222200355F8A /* DataManagerGCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerGCD.swift; sourceTree = "<group>"; };
 		83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerOperation.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
@@ -130,6 +134,8 @@
 		835CFA0427BF8825004B6BD6 /* ChatAppHussyR */ = {
 			isa = PBXGroup;
 			children = (
+				83A01581280DB25300D5CAE2 /* ServiceLayer */,
+				83A0157E280DAFBA00D5CAE2 /* CoreLayer */,
 				83325DCC280752AF0015276F /* GoogleService-Info.plist */,
 				8306190E27D61490002EBDC4 /* Models */,
 				8306190B27D4E88B002EBDC4 /* Views */,
@@ -140,6 +146,22 @@
 				835CFA1327BF8827004B6BD6 /* Info.plist */,
 			);
 			path = ChatAppHussyR;
+			sourceTree = "<group>";
+		};
+		83A0157E280DAFBA00D5CAE2 /* CoreLayer */ = {
+			isa = PBXGroup;
+			children = (
+				83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */,
+			);
+			path = CoreLayer;
+			sourceTree = "<group>";
+		};
+		83A01581280DB25300D5CAE2 /* ServiceLayer */ = {
+			isa = PBXGroup;
+			children = (
+				83A01582280DB28700D5CAE2 /* CoreDataService.swift */,
+			);
+			path = ServiceLayer;
 			sourceTree = "<group>";
 		};
 		83D61A9D27FB367A0050760B /* Others */ = {
@@ -292,12 +314,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83A01583280DB28700D5CAE2 /* CoreDataService.swift in Sources */,
 				8306190D27D6148C002EBDC4 /* Model.swift in Sources */,
 				8306190A27D4E883002EBDC4 /* ConversationTableViewCell.swift in Sources */,
 				83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */,
 				8306191227D66807002EBDC4 /* ConversationViewController.swift in Sources */,
 				83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */,
 				8352DD0527DF482C002A05A8 /* ThemeTableViewCell.swift in Sources */,
+				83A01580280DB00C00D5CAE2 /* NewCoreDataCore.swift in Sources */,
 				83242A682800158A0094319A /* OldCoreDataStack.swift in Sources */,
 				83FDCF1927D8E67600F2E410 /* LeftTableViewCell.swift in Sources */,
 				83FDCF1727D8E66600F2E410 /* RightTableViewCell.swift in Sources */,

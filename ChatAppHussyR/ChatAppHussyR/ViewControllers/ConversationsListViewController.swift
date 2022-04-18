@@ -13,17 +13,18 @@ class ConversationsListViewController: UIViewController {
 
     private lazy var db = Firestore.firestore()
     private lazy var channelsReference = db.collection("channels")
-    private let newCoreDataStack = NewCoreDataStack()
     private lazy var fetchedResultController: NSFetchedResultsController<DBChannel> = {
         let fetch = DBChannel.fetchRequest()
         let sort = NSSortDescriptor(key: #keyPath(DBChannel.lastActivity), ascending: false)
         fetch.sortDescriptors = [sort]
         let controller = NSFetchedResultsController(
             fetchRequest: fetch,
-            managedObjectContext: newCoreDataStack.viewContext,
+            managedObjectContext: coreDataService.contextForFetchedResultController,
             sectionNameKeyPath: nil, cacheName: nil)
         return controller
     }()
+    
+    let coreDataService: CoreDataServiceProtocol = CoreDataService()
     
     var isFirstLaunch: Bool = true
     
@@ -60,77 +61,13 @@ class ConversationsListViewController: UIViewController {
     private func fetchAllChannelsFirebase() {
         channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { [weak self] snap, error in
             guard let self = self,
-                  error == nil
-            else { return }
-            self.newCoreDataStack.performSave { context in
-                let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-                guard let dbchannels = try? context.fetch(fetch) else { return }
-                var fbChannels = [Channel]()
-                snap?.documentChanges.forEach({ [weak self] documentC in
-                    guard let self = self else { return }
-                    let channel = Channel(dictionary: documentC.document.data(), identifier: documentC.document.documentID)
-                    
-                    switch documentC.type {
-                    case .removed:
-                        self.removeChannelFromCoreData(context: context, identifier: channel.identifier)
-                    default:
-                        if let dbchannel = self.doesChannelExist(id: channel.identifier, dbChannels: dbchannels) {
-                            dbchannel.lastActivity = channel.lastActivity
-                            dbchannel.lastMessage = channel.lastMessage
-                        } else {
-                            let dbchannel = DBChannel(context: context)
-                            dbchannel.name = channel.name
-                            dbchannel.identifier = channel.identifier
-                            dbchannel.lastMessage = channel.lastMessage
-                            dbchannel.lastActivity = channel.lastActivity
-                        }
-                        fbChannels.append(channel)
-                    }
-                })
-                // Удаление каналов при первом запуске
-                guard self.isFirstLaunch else { return }
-                self.isFirstLaunch.toggle()
-                let channelsForRemove = self.getRemovedDBChannels(frChannels: fbChannels, dbChannels: dbchannels)
-                if !channelsForRemove.isEmpty {
-                    channelsForRemove.forEach { context.delete($0) }
-                }
+                  error == nil,
+                  let documentChanges = snap?.documentChanges
+            else {
+                return
             }
+            self.coreDataService.updateRemoveOrDeleteChannels(objectsForUpdate: documentChanges, isFirstLaunch: self.isFirstLaunch)
         }
-    }
-    
-    private func doesChannelExist(id: String, dbChannels: [DBChannel]) -> DBChannel? {
-        guard let channel = dbChannels.filter({ $0.identifier == id }).first else { return nil }
-        return channel
-    }
-    
-    private func getRemovedDBChannels(
-        frChannels: [Channel],
-        dbChannels: [DBChannel]) -> [DBChannel] {
-            // dbchannels уже сохраненные в кор дате каналы
-            // frchannels каналы которые пришли их firestore
-            // требуется найти были ли удалены каналы и вернуть их
-            guard !frChannels.isEmpty && !dbChannels.isEmpty else { return [] }
-            let oldChannels = dbChannels.map { dbchannel in
-                return Channel(identifier: dbchannel.identifier ?? "",
-                               name: dbchannel.name ?? "",
-                               lastMessage: dbchannel.lastMessage ?? "",
-                               lastActivity: dbchannel.lastActivity ?? Date())
-            }
-            let newChannelsSet = Set(frChannels)
-            let oldChannelsSet = Set(oldChannels)
-            
-            let resultsID = oldChannelsSet.subtracting(newChannelsSet).map { $0.identifier }
-            let returnArray = dbChannels.filter { resultsID.contains($0.identifier ?? "")
-            }
-            return returnArray
-    }
-    
-    private func removeChannelFromCoreData(context: NSManagedObjectContext, identifier: String) {
-        let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-        fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), identifier)
-        guard let channel = try? context.fetch(fetch).first else { return }
-        context.delete(channel)
-        
     }
     
     // MARK: - SetupUI
@@ -300,7 +237,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
                               lastMessage: dbchannel.lastMessage ?? "",
                               lastActivity: dbchannel.lastActivity ?? Date())
         vc.channel = channel
-        vc.newCoreDataStack = self.newCoreDataStack
+//        vc.newCoreDataStack = self.newCoreDataStack
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)

@@ -40,6 +40,22 @@ final class NewCoreDataStack {
         }
     }
     
+//    public func fetch<T: NSManagedObject>(predicate: NSPredicate?, sortDesc: [NSSortDescriptor]?) -> [T] {
+//        let fetch = T.fetchRequest()
+//        fetch.predicate = predicate
+//        fetch.sortDescriptors = sortDesc
+//        do {
+//            let objects = try container.viewContext.fetch(fetch)
+//            #if COREDATALOG
+//            print("Данные о \(objects.count) каналах считаны")
+//            #endif
+//            return objects as! [T]
+//        } catch {
+//            print(error.localizedDescription)
+//            return []
+//        }
+//    }
+    
     public func fecthChannel(predicate: NSPredicate) -> [DBChannel] {
         let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
         fetch.predicate = predicate
