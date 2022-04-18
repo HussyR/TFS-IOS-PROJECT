@@ -237,7 +237,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
                               lastMessage: dbchannel.lastMessage ?? "",
                               lastActivity: dbchannel.lastActivity ?? Date())
         vc.channel = channel
-//        vc.newCoreDataStack = self.newCoreDataStack
+        vc.coreDataService = self.coreDataService
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)

@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 protocol CoreDataCoreProtocol {
-    func fetch<T: NSManagedObject>(type: T.Type, with predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> [T]
+    func fetch<T: NSManagedObject>(type: T.Type, with predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, context: NSManagedObjectContext?) -> [T]
     func performSave(block: @escaping (NSManagedObjectContext) -> Void)
     var contextForFetchedResultController: NSManagedObjectContext { get }
 }
@@ -36,12 +36,17 @@ class NewCoreDataCore: CoreDataCoreProtocol {
         return container.viewContext
     }
     
-    func fetch<T: NSManagedObject>(type: T.Type, with predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> [T] {
+    func fetch<T: NSManagedObject>(type: T.Type,
+                                   with predicate: NSPredicate?,
+                                   sortDescriptors: [NSSortDescriptor]?,
+                                   context: NSManagedObjectContext?
+    ) -> [T] {
+        let context = context ?? container.viewContext
         let fetch = type.fetchRequest()
         fetch.predicate = predicate
         fetch.sortDescriptors = sortDescriptors
         do {
-            let objects = try container.viewContext.fetch(fetch)
+            let objects = try context.fetch(fetch)
             #if COREDATALOG
             print("Данные о \(objects.count) каналах считаны")
             #endif

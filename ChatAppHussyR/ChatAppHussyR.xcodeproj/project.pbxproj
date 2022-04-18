@@ -22,6 +22,7 @@
 		835CFA1227BF8827004B6BD6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 835CFA1027BF8827004B6BD6 /* LaunchScreen.storyboard */; };
 		83A01580280DB00C00D5CAE2 /* NewCoreDataCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */; };
 		83A01583280DB28700D5CAE2 /* CoreDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01582280DB28700D5CAE2 /* CoreDataService.swift */; };
+		83A01585280DCF3C00D5CAE2 /* FirebaseCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01584280DCF3C00D5CAE2 /* FirebaseCore.swift */; };
 		83ADFC7A27EA222200355F8A /* DataManagerGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7927EA222200355F8A /* DataManagerGCD.swift */; };
 		83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */; };
 		83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9B27FB35810050760B /* NewCoreDataStack.swift */; };
@@ -49,6 +50,7 @@
 		835CFA1327BF8827004B6BD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataCore.swift; sourceTree = "<group>"; };
 		83A01582280DB28700D5CAE2 /* CoreDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataService.swift; sourceTree = "<group>"; };
+		83A01584280DCF3C00D5CAE2 /* FirebaseCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseCore.swift; sourceTree = "<group>"; };
 		83ADFC7927EA222200355F8A /* DataManagerGCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerGCD.swift; sourceTree = "<group>"; };
 		83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerOperation.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */,
+				83A01584280DCF3C00D5CAE2 /* FirebaseCore.swift */,
 			);
 			path = CoreLayer;
 			sourceTree = "<group>";
@@ -321,6 +324,7 @@
 				8306191227D66807002EBDC4 /* ConversationViewController.swift in Sources */,
 				83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */,
 				8352DD0527DF482C002A05A8 /* ThemeTableViewCell.swift in Sources */,
+				83A01585280DCF3C00D5CAE2 /* FirebaseCore.swift in Sources */,
 				83A01580280DB00C00D5CAE2 /* NewCoreDataCore.swift in Sources */,
 				83242A682800158A0094319A /* OldCoreDataStack.swift in Sources */,
 				83FDCF1927D8E67600F2E410 /* LeftTableViewCell.swift in Sources */,

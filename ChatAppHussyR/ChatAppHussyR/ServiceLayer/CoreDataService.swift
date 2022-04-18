@@ -18,7 +18,6 @@ protocol CoreDataServiceProtocol {
         objectsForUpdate: [DocumentChange],
         channelID: String
     )
-    
     var contextForFetchedResultController: NSManagedObjectContext { get }
 }
 
@@ -37,7 +36,7 @@ class CoreDataService: CoreDataServiceProtocol {
         isFirstLaunch: Bool
     ) {
         coreDataCore.performSave { context in
-            let dbChannels = self.coreDataCore.fetch(type: DBChannel.self, with: nil, sortDescriptors: [])
+            let dbChannels = self.coreDataCore.fetch(type: DBChannel.self, with: nil, sortDescriptors: [], context: context)
             var channels = [Channel]()
             objectsForUpdate.forEach { documentC in
                 let channel = Channel(dictionary: documentC.document.data(), identifier: documentC.document.documentID)
@@ -106,7 +105,7 @@ class CoreDataService: CoreDataServiceProtocol {
                     #keyPath(DBChannel.identifier),
                     channelID
                 )
-                guard let dbChannel = self.coreDataCore.fetch(type: DBChannel.self, with: predicate, sortDescriptors: []).first,
+                guard let dbChannel = self.coreDataCore.fetch(type: DBChannel.self, with: predicate, sortDescriptors: [], context: context).first,
                       let dbmessages = dbChannel.messages?.array as? [DBMessage]
                 else { return }
                 objectsForUpdate.forEach { documentChange in

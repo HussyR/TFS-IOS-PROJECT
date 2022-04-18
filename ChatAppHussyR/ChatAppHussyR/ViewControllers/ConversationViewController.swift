@@ -16,7 +16,7 @@ class ConversationViewController: UIViewController {
     var channel: Channel?
     private lazy var db = Firestore.firestore()
     private lazy var reference = db.collection("channels")
-    var newCoreDataStack: NewCoreDataStack?
+    var coreDataService: CoreDataServiceProtocol?
     var isFirstLaunch = true
     
     private lazy var fetchedResultController: NSFetchedResultsController<DBMessage> = {
@@ -26,12 +26,12 @@ class ConversationViewController: UIViewController {
         let sortD = NSSortDescriptor(key: #keyPath(DBMessage.created), ascending: true)
         fetch.sortDescriptors = [sortD]
         
-        guard let newCoreDataStack = newCoreDataStack else {
+        guard let coreDataService = coreDataService else {
             fatalError("error")
         }
         let controller = NSFetchedResultsController(
             fetchRequest: fetch,
-            managedObjectContext: newCoreDataStack.viewContext,
+            managedObjectContext: coreDataService.contextForFetchedResultController,
             sectionNameKeyPath: nil,
             cacheName: nil)
         return controller
@@ -88,45 +88,11 @@ class ConversationViewController: UIViewController {
             guard let self = self,
                   error == nil,
                   let snap = snap,
-                  let newCoreDataStack = self.newCoreDataStack
+                  let coreDataService = self.coreDataService
             else { return }
             // Core Data save
-            newCoreDataStack.performSave(block: { context in
-                let fetchRequest: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-                fetchRequest.predicate = NSPredicate(
-                    format: "%K == %@",
-                    #keyPath(DBChannel.identifier),
-                    channel.identifier
-                )
-                do {
-                    let results = try context.fetch(fetchRequest)
-                    guard let dbchannel = results.first,
-                          let dbmessages = dbchannel.messages?.array as? [DBMessage]
-                    else { return }
-                    snap.documentChanges.forEach { documentChange in
-                        if !self.doesMessageExist(dbmessages: dbmessages, id: documentChange.document.documentID) {
-                            let message = Message(dictionary: documentChange.document.data())
-                            let dbmessage = DBMessage(context: context)
-                            dbmessage.content = message.content
-                            dbmessage.created = message.created
-                            dbmessage.senderId = message.senderId
-                            dbmessage.senderName = message.senderName
-                            dbmessage.identifier = documentChange.document.documentID
-                            dbchannel.addToMessages(dbmessage)
-                        }
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            })
+            coreDataService.updateRemoveOrDeleteMessages(objectsForUpdate: snap.documentChanges, channelID: channel.identifier)
         }
-    }
-    
-    private func doesMessageExist(dbmessages: [DBMessage], id: String) -> Bool {
-        if dbmessages.filter({ $0.identifier == id }).first != nil {
-            return true
-        }
-        return false
     }
     
     @objc private func keyboardMove(notification: NSNotification) {
