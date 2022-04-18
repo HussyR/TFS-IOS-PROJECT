@@ -14,9 +14,8 @@ class ConversationViewController: UIViewController {
     var theme = Theme.classic
     
     var channel: Channel?
-    private lazy var db = Firestore.firestore()
-    private lazy var reference = db.collection("channels")
     var coreDataService: CoreDataServiceProtocol?
+    var firebaseService: FirebaseServiceProtocol?
     var isFirstLaunch = true
     
     private lazy var fetchedResultController: NSFetchedResultsController<DBMessage> = {
@@ -84,15 +83,13 @@ class ConversationViewController: UIViewController {
     
     private func fetchAllMessagesForChannel() {
         guard let channel = channel else { return }
-        db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
+        
+        firebaseService?.addSnapshotListenerToMessages(channelID: channel.identifier, block: { [weak self] snap in
             guard let self = self,
-                  error == nil,
-                  let snap = snap,
                   let coreDataService = self.coreDataService
             else { return }
-            // Core Data save
             coreDataService.updateRemoveOrDeleteMessages(objectsForUpdate: snap.documentChanges, channelID: channel.identifier)
-        }
+        })
     }
     
     @objc private func keyboardMove(notification: NSNotification) {
@@ -114,10 +111,7 @@ class ConversationViewController: UIViewController {
         else { return }
         let message = Message(content: messageText, created: Date(), senderId: uuid, senderName: "Danila")
         guard let channel = channel else { return }
-        db.collection("channels")
-            .document(channel.identifier)
-            .collection("messages")
-            .addDocument(data: message.toDict())
+        firebaseService?.addMessage(message: message, channelID: channel.identifier)
         textField.text = ""
     }
     

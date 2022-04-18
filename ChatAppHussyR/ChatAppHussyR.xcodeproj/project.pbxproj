@@ -23,6 +23,7 @@
 		83A01580280DB00C00D5CAE2 /* NewCoreDataCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */; };
 		83A01583280DB28700D5CAE2 /* CoreDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01582280DB28700D5CAE2 /* CoreDataService.swift */; };
 		83A01585280DCF3C00D5CAE2 /* FirebaseCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01584280DCF3C00D5CAE2 /* FirebaseCore.swift */; };
+		83A01587280DD49900D5CAE2 /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01586280DD49900D5CAE2 /* FirebaseService.swift */; };
 		83ADFC7A27EA222200355F8A /* DataManagerGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7927EA222200355F8A /* DataManagerGCD.swift */; };
 		83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */; };
 		83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9B27FB35810050760B /* NewCoreDataStack.swift */; };
@@ -51,6 +52,7 @@
 		83A0157F280DB00C00D5CAE2 /* NewCoreDataCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataCore.swift; sourceTree = "<group>"; };
 		83A01582280DB28700D5CAE2 /* CoreDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataService.swift; sourceTree = "<group>"; };
 		83A01584280DCF3C00D5CAE2 /* FirebaseCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseCore.swift; sourceTree = "<group>"; };
+		83A01586280DD49900D5CAE2 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
 		83ADFC7927EA222200355F8A /* DataManagerGCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerGCD.swift; sourceTree = "<group>"; };
 		83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerOperation.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				83A01582280DB28700D5CAE2 /* CoreDataService.swift */,
+				83A01586280DD49900D5CAE2 /* FirebaseService.swift */,
 			);
 			path = ServiceLayer;
 			sourceTree = "<group>";
@@ -317,6 +320,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83A01587280DD49900D5CAE2 /* FirebaseService.swift in Sources */,
 				83A01583280DB28700D5CAE2 /* CoreDataService.swift in Sources */,
 				8306190D27D6148C002EBDC4 /* Model.swift in Sources */,
 				8306190A27D4E883002EBDC4 /* ConversationTableViewCell.swift in Sources */,
@@ -493,7 +497,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				OTHER_SWIFT_FLAGS = "-DCOREDATALOG";
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ru.tcsbank.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -527,7 +531,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				OTHER_SWIFT_FLAGS = "-DCOREDATALOG";
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = ru.tcsbank.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

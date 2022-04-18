@@ -8,6 +8,10 @@
 import Foundation
 import Firebase
 
+protocol FirebaseModel {
+    func toDict() -> [String: Any]
+}
+
 struct Channel: Hashable {
     let identifier: String
     let name: String
@@ -22,13 +26,21 @@ struct Message: Hashable {
     let senderName: String
 }
 
-extension Message {
+extension Message: FirebaseModel {
     func toDict() -> [String: Any] {
         return [
             "content": content,
             "senderID": senderId,
             "created": created,
             "senderName": senderName
+        ]
+    }
+}
+
+extension Channel: FirebaseModel {
+    func toDict() -> [String: Any] {
+        return [
+            "name": name
         ]
     }
 }

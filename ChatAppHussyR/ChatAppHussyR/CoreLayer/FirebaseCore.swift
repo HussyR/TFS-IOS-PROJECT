@@ -8,6 +8,16 @@
 import Foundation
 import Firebase
 
-class FirebaseCore {
-    
+protocol FirebaseCoreProtocol {
+    var db: Firestore { get }
+    var channelsReference: CollectionReference { get }
+}
+
+class FirebaseCore: FirebaseCoreProtocol {
+    var db: Firestore {
+        return Firestore.firestore()
+    }
+    var channelsReference: CollectionReference {
+        return  db.collection("channels")
+    }
 }
