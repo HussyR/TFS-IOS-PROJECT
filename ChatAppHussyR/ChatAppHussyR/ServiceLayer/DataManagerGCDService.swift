@@ -7,9 +7,16 @@
 
 import Foundation
 
-class DataManagerGCD {
+protocol DataManagerGCDServiceProtocol {
+    func writeThemeData(theme: Int)
+    func readThemeData() -> Int
+    func writeProfileData(model: ProfileModel) -> Bool
+    func readProfileData() -> Result<ProfileModel, Error>
+}
+
+class DataManagerGCDService: DataManagerGCDServiceProtocol {
     
-    static let shared = DataManagerGCD()
+    static let shared = DataManagerGCDService()
     
     private init() {
         
@@ -18,8 +25,9 @@ class DataManagerGCD {
     var oldSavedModel: ProfileModel?
     
     func getDocumentDirectory() -> URL {
-        let url = FileManager.default.urls(for: .documentDirectory,
-                                           in: .userDomainMask)[0]
+        let url = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask)[0]
         return url
     }
     

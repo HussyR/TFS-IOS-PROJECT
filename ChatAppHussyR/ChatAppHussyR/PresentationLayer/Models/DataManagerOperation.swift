@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - UNUSED
+
 class DataManagerOperation: Operation {
     
     enum ReadOrWrite {

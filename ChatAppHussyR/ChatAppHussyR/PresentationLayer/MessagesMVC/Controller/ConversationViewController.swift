@@ -82,14 +82,21 @@ class ConversationViewController: UIViewController {
     }
     
     private func fetchAllMessagesForChannel() {
-        guard let channel = channel else { return }
+        guard let channel = channel,
+              let firebaseService = firebaseService,
+              let coreDataService = self.coreDataService
+        else { return }
         
-        firebaseService?.addSnapshotListenerToMessages(channelID: channel.identifier, block: { [weak self] snap in
-            guard let self = self,
-                  let coreDataService = self.coreDataService
-            else { return }
+        firebaseService.getMessages(channelID: channel.identifier) { snap in
             coreDataService.updateRemoveOrDeleteMessages(objectsForUpdate: snap.documentChanges, channelID: channel.identifier)
-        })
+        }
+        
+//        firebaseService?.addSnapshotListenerToMessages(channelID: channel.identifier, block: { [weak self] snap in
+//            guard let self = self,
+//                  let coreDataService = self.coreDataService
+//            else { return }
+//            coreDataService.updateRemoveOrDeleteMessages(objectsForUpdate: snap.documentChanges, channelID: channel.identifier)
+//        })
     }
     
     @objc private func keyboardMove(notification: NSNotification) {

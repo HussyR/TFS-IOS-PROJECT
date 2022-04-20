@@ -58,11 +58,17 @@ class ConversationsListViewController: UIViewController {
     // MARK: - Firebase get all channels
     
     private func fetchAllChannelsFirebase() {
-        firebaseService.addSnapshotListenerToChannel { [weak self] snap in
-            guard let self = self
-            else { return }
+        
+        firebaseService.getChannels { [weak self] snap in
+            guard let self = self else { return }
             self.coreDataService.updateRemoveOrDeleteChannels(objectsForUpdate: snap.documentChanges, isFirstLaunch: self.isFirstLaunch)
         }
+        
+//        firebaseService.addSnapshotListenerToChannel { [weak self] snap in
+//            guard let self = self
+//            else { return }
+//            self.coreDataService.updateRemoveOrDeleteChannels(objectsForUpdate: snap.documentChanges, isFirstLaunch: self.isFirstLaunch)
+//        }
     }
     
     // MARK: - SetupUI
@@ -153,7 +159,7 @@ class ConversationsListViewController: UIViewController {
             self.theme = theme
             self.setupTheme()
             DispatchQueue.global(qos: .background).async {
-                DataManagerGCD.shared.writeThemeData(theme: theme.rawValue)
+                DataManagerGCDService.shared.writeThemeData(theme: theme.rawValue)
             }
         }
         navigationController?.pushViewController(vc, animated: true)

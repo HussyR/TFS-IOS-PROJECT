@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow()
         let vc = ConversationsListViewController()
-        let themeRawValue = DataManagerGCD.shared.readThemeData()
+        let themeRawValue = DataManagerGCDService.shared.readThemeData()
         vc.theme = Theme(rawValue: themeRawValue) ?? .classic
         
         let nav = UINavigationController(rootViewController: vc)

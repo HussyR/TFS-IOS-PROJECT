@@ -8,6 +8,8 @@
 import Foundation
 import CoreData
 
+// MARK: - UNUSED
+
 final class OldCoreDataStack {
     private lazy var managedObjectModel: NSManagedObjectModel = {
         guard let url = Bundle.main.url(forResource: "ChatAppHussyR", withExtension: "momd"),

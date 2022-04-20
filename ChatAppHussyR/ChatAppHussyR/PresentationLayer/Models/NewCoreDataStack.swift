@@ -8,6 +8,8 @@
 import Foundation
 import CoreData
 
+// MARK: - UNUSED
+
 final class NewCoreDataStack {
     private lazy var container: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ChatAppHussyR")

@@ -11,8 +11,8 @@ import Firebase
 protocol FirebaseServiceProtocol {
     func addChannel(name: String, uuid: String)
     func addMessage(message: Message, channelID: String)
-    func addSnapshotListenerToChannel(block: @escaping (QuerySnapshot) -> Void)
-    func addSnapshotListenerToMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void)
+    func getChannels(block: @escaping (QuerySnapshot) -> Void)
+    func getMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void)
     func removeChannelWithID(_ id: String)
 }
 
@@ -36,25 +36,44 @@ class FirebaseService: FirebaseServiceProtocol {
         ref.collection("messages").addDocument(data: message.toDict())
     }
     
-    func addSnapshotListenerToChannel(block: @escaping (QuerySnapshot) -> Void) {
-        firebaseCore.channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { snap, error in
-            guard let snap = snap,
-                  error == nil
-            else { return }
-            block(snap)
-        }
-    }
-    
     func removeChannelWithID(_ id: String) {
         firebaseCore.channelsReference.document(id).delete()
     }
     
-    func addSnapshotListenerToMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void) {
-        firebaseCore.channelsReference.document(channelID).collection("messages").addSnapshotListener { snap, error in
-            guard let snap = snap,
-                  error == nil
-            else { return }
+    func makeReference(channelID: String?) -> CollectionReference {
+        if let channelID = channelID {
+            return firebaseCore.channelsReference.document(channelID).collection("messages")
+        } else {
+            return firebaseCore.channelsReference
+        }
+    }
+    
+    func getChannels(block: @escaping (QuerySnapshot) -> Void) {
+        self.firebaseCore.addSnapshotListener(reference: makeReference(channelID: nil)) { snap in
             block(snap)
         }
     }
+    
+    func getMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void) {
+        self.firebaseCore.addSnapshotListener(reference: makeReference(channelID: channelID)) { snap in
+            block(snap)
+        }
+    }
+//    func addSnapshotListenerToChannel(block: @escaping (QuerySnapshot) -> Void) {
+//        firebaseCore.channelsReference.addSnapshotListener { snap, error in
+//            guard let snap = snap,
+//                  error == nil
+//            else { return }
+//            block(snap)
+//        }
+//    }
+    
+//    func addSnapshotListenerToMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void) {
+//        firebaseCore.channelsReference.document(channelID).collection("messages").addSnapshotListener { snap, error in
+//            guard let snap = snap,
+//                  error == nil
+//            else { return }
+//            block(snap)
+//        }
+//    }
 }
