@@ -1,14 +1,20 @@
 //
-//  NewCoreDataStack.swift
+//  NewCoreDataCore.swift
 //  ChatAppHussyR
 //
-//  Created by Данил on 04.04.2022.
+//  Created by Данил on 18.04.2022.
 //
 
 import Foundation
 import CoreData
 
-final class NewCoreDataStack {
+protocol CoreDataCoreProtocol {
+    func fetch<T: NSManagedObject>(type: T.Type, with predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, context: NSManagedObjectContext?) -> [T]
+    func performSave(block: @escaping (NSManagedObjectContext) -> Void)
+    var contextForFetchedResultController: NSManagedObjectContext { get }
+}
+
+class NewCoreDataCore: CoreDataCoreProtocol {
     private lazy var container: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ChatAppHussyR")
         container.loadPersistentStores { desc, error in
@@ -22,33 +28,30 @@ final class NewCoreDataStack {
         return container
     }()
     
+    var contextForFetchedResultController: NSManagedObjectContext {
+        viewContext
+    }
+    
     var viewContext: NSManagedObjectContext {
         return container.viewContext
     }
     
-    public func fecthChannels() -> [DBChannel] {
-        let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-        do {
-            let channels = try container.viewContext.fetch(fetch)
-            #if COREDATALOG
-            print("Данные о \(channels.count) каналах считаны")
-            #endif
-            return channels
-        } catch {
-            print(error.localizedDescription)
-            return []
-        }
-    }
-    
-    public func fecthChannel(predicate: NSPredicate) -> [DBChannel] {
-        let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
+    func fetch<T: NSManagedObject>(type: T.Type,
+                                   with predicate: NSPredicate?,
+                                   sortDescriptors: [NSSortDescriptor]?,
+                                   context: NSManagedObjectContext?
+    ) -> [T] {
+        let context = context ?? container.viewContext
+        let fetch = type.fetchRequest()
         fetch.predicate = predicate
+        fetch.sortDescriptors = sortDescriptors
         do {
-            let channels = try container.viewContext.fetch(fetch)
+            let objects = try context.fetch(fetch)
             #if COREDATALOG
-            print("Данные о канале считаны")
+            print("Данные о \(objects.count) каналах считаны")
             #endif
-            return channels
+            guard let objects = objects as? [T] else { return [] }
+            return objects
         } catch {
             print(error.localizedDescription)
             return []
@@ -77,4 +80,5 @@ final class NewCoreDataStack {
             }
         }
     }
+    
 }

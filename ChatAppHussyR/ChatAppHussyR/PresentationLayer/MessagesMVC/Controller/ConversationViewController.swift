@@ -14,9 +14,8 @@ class ConversationViewController: UIViewController {
     var theme = Theme.classic
     
     var channel: Channel?
-    private lazy var db = Firestore.firestore()
-    private lazy var reference = db.collection("channels")
-    var newCoreDataStack: NewCoreDataStack?
+    var coreDataService: CoreDataServiceProtocol?
+    var firebaseService: FirebaseServiceProtocol?
     var isFirstLaunch = true
     
     private lazy var fetchedResultController: NSFetchedResultsController<DBMessage> = {
@@ -26,12 +25,12 @@ class ConversationViewController: UIViewController {
         let sortD = NSSortDescriptor(key: #keyPath(DBMessage.created), ascending: true)
         fetch.sortDescriptors = [sortD]
         
-        guard let newCoreDataStack = newCoreDataStack else {
+        guard let coreDataService = coreDataService else {
             fatalError("error")
         }
         let controller = NSFetchedResultsController(
             fetchRequest: fetch,
-            managedObjectContext: newCoreDataStack.viewContext,
+            managedObjectContext: coreDataService.contextForFetchedResultController,
             sectionNameKeyPath: nil,
             cacheName: nil)
         return controller
@@ -83,50 +82,14 @@ class ConversationViewController: UIViewController {
     }
     
     private func fetchAllMessagesForChannel() {
-        guard let channel = channel else { return }
-        db.collection("channels").document(channel.identifier).collection("messages").addSnapshotListener { [weak self] snap, error in
-            guard let self = self,
-                  error == nil,
-                  let snap = snap,
-                  let newCoreDataStack = self.newCoreDataStack
-            else { return }
-            // Core Data save
-            newCoreDataStack.performSave(block: { context in
-                let fetchRequest: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-                fetchRequest.predicate = NSPredicate(
-                    format: "%K == %@",
-                    #keyPath(DBChannel.identifier),
-                    channel.identifier
-                )
-                do {
-                    let results = try context.fetch(fetchRequest)
-                    guard let dbchannel = results.first,
-                          let dbmessages = dbchannel.messages?.array as? [DBMessage]
-                    else { return }
-                    snap.documentChanges.forEach { documentChange in
-                        if !self.doesMessageExist(dbmessages: dbmessages, id: documentChange.document.documentID) {
-                            let message = Message(dictionary: documentChange.document.data())
-                            let dbmessage = DBMessage(context: context)
-                            dbmessage.content = message.content
-                            dbmessage.created = message.created
-                            dbmessage.senderId = message.senderId
-                            dbmessage.senderName = message.senderName
-                            dbmessage.identifier = documentChange.document.documentID
-                            dbchannel.addToMessages(dbmessage)
-                        }
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            })
+        guard let channel = channel,
+              let firebaseService = firebaseService,
+              let coreDataService = self.coreDataService
+        else { return }
+        
+        firebaseService.getMessages(channelID: channel.identifier) { snap in
+            coreDataService.updateRemoveOrDeleteMessages(objectsForUpdate: snap.documentChanges, channelID: channel.identifier)
         }
-    }
-    
-    private func doesMessageExist(dbmessages: [DBMessage], id: String) -> Bool {
-        if dbmessages.filter({ $0.identifier == id }).first != nil {
-            return true
-        }
-        return false
     }
     
     @objc private func keyboardMove(notification: NSNotification) {
@@ -148,10 +111,7 @@ class ConversationViewController: UIViewController {
         else { return }
         let message = Message(content: messageText, created: Date(), senderId: uuid, senderName: "Danila")
         guard let channel = channel else { return }
-        db.collection("channels")
-            .document(channel.identifier)
-            .collection("messages")
-            .addDocument(data: message.toDict())
+        firebaseService?.addMessage(message: message, channelID: channel.identifier)
         textField.text = ""
     }
     
@@ -283,12 +243,12 @@ extension ConversationViewController: UITableViewDataSource, UITableViewDelegate
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let dbmessage = fetchedResultController.object(at: indexPath)
+        print(dbmessage.identifier)
         let message = Message(
             content: dbmessage.content ?? "",
             created: dbmessage.created ?? Date(),
             senderId: dbmessage.senderId ?? "",
             senderName: dbmessage.senderName ?? "")
-        
         if message.senderId == uuid {
             let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
             cell?.configure(message.content)
@@ -323,7 +283,6 @@ extension ConversationViewController: NSFetchedResultsControllerDelegate {
                     at indexPath: IndexPath?,
                     for type: NSFetchedResultsChangeType,
                     newIndexPath: IndexPath?) {
-        print("change")
         switch type {
         case .insert:
             guard let newIndexPath = newIndexPath else {

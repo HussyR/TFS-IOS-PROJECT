@@ -16,7 +16,6 @@ enum SaveMethod {
 
 class ProfileViewController: UIViewController {
 
-//    private let queue = OperationQueue()
     var theme: Theme = .classic
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -75,7 +74,7 @@ class ProfileViewController: UIViewController {
         let profileData = self.makeProfileModel()
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
-            let success = DataManagerGCD.shared.writeProfileData(model: profileData)
+            let success = DataManagerGCDService.shared.writeProfileData(model: profileData)
             print("data saved")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -126,7 +125,7 @@ class ProfileViewController: UIViewController {
     private func readProfileData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
-            let result = DataManagerGCD.shared.readProfileData()
+            let result = DataManagerGCDService.shared.readProfileData()
             switch result {
             case .success(let model):
                 DispatchQueue.main.async {

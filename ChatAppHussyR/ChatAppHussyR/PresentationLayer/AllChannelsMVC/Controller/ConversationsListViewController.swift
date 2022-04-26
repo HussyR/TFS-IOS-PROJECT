@@ -10,20 +10,20 @@ import Firebase
 import CoreData
 
 class ConversationsListViewController: UIViewController {
-
-    private lazy var db = Firestore.firestore()
-    private lazy var channelsReference = db.collection("channels")
-    private let newCoreDataStack = NewCoreDataStack()
+    
     private lazy var fetchedResultController: NSFetchedResultsController<DBChannel> = {
         let fetch = DBChannel.fetchRequest()
         let sort = NSSortDescriptor(key: #keyPath(DBChannel.lastActivity), ascending: false)
         fetch.sortDescriptors = [sort]
         let controller = NSFetchedResultsController(
             fetchRequest: fetch,
-            managedObjectContext: newCoreDataStack.viewContext,
+            managedObjectContext: coreDataService.contextForFetchedResultController,
             sectionNameKeyPath: nil, cacheName: nil)
         return controller
     }()
+    
+    let coreDataService: CoreDataServiceProtocol = CoreDataService()
+    let firebaseService: FirebaseServiceProtocol = FirebaseService()
     
     var isFirstLaunch: Bool = true
     
@@ -58,79 +58,17 @@ class ConversationsListViewController: UIViewController {
     // MARK: - Firebase get all channels
     
     private func fetchAllChannelsFirebase() {
-        channelsReference.order(by: "lastActivity", descending: true).addSnapshotListener { [weak self] snap, error in
-            guard let self = self,
-                  error == nil
-            else { return }
-            self.newCoreDataStack.performSave { context in
-                let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-                guard let dbchannels = try? context.fetch(fetch) else { return }
-                var fbChannels = [Channel]()
-                snap?.documentChanges.forEach({ [weak self] documentC in
-                    guard let self = self else { return }
-                    let channel = Channel(dictionary: documentC.document.data(), identifier: documentC.document.documentID)
-                    
-                    switch documentC.type {
-                    case .removed:
-                        self.removeChannelFromCoreData(context: context, identifier: channel.identifier)
-                    default:
-                        if let dbchannel = self.doesChannelExist(id: channel.identifier, dbChannels: dbchannels) {
-                            dbchannel.lastActivity = channel.lastActivity
-                            dbchannel.lastMessage = channel.lastMessage
-                        } else {
-                            let dbchannel = DBChannel(context: context)
-                            dbchannel.name = channel.name
-                            dbchannel.identifier = channel.identifier
-                            dbchannel.lastMessage = channel.lastMessage
-                            dbchannel.lastActivity = channel.lastActivity
-                        }
-                        fbChannels.append(channel)
-                    }
-                })
-                // Удаление каналов при первом запуске
-                guard self.isFirstLaunch else { return }
-                self.isFirstLaunch.toggle()
-                let channelsForRemove = self.getRemovedDBChannels(frChannels: fbChannels, dbChannels: dbchannels)
-                if !channelsForRemove.isEmpty {
-                    channelsForRemove.forEach { context.delete($0) }
-                }
-            }
-        }
-    }
-    
-    private func doesChannelExist(id: String, dbChannels: [DBChannel]) -> DBChannel? {
-        guard let channel = dbChannels.filter({ $0.identifier == id }).first else { return nil }
-        return channel
-    }
-    
-    private func getRemovedDBChannels(
-        frChannels: [Channel],
-        dbChannels: [DBChannel]) -> [DBChannel] {
-            // dbchannels уже сохраненные в кор дате каналы
-            // frchannels каналы которые пришли их firestore
-            // требуется найти были ли удалены каналы и вернуть их
-            guard !frChannels.isEmpty && !dbChannels.isEmpty else { return [] }
-            let oldChannels = dbChannels.map { dbchannel in
-                return Channel(identifier: dbchannel.identifier ?? "",
-                               name: dbchannel.name ?? "",
-                               lastMessage: dbchannel.lastMessage ?? "",
-                               lastActivity: dbchannel.lastActivity ?? Date())
-            }
-            let newChannelsSet = Set(frChannels)
-            let oldChannelsSet = Set(oldChannels)
-            
-            let resultsID = oldChannelsSet.subtracting(newChannelsSet).map { $0.identifier }
-            let returnArray = dbChannels.filter { resultsID.contains($0.identifier ?? "")
-            }
-            return returnArray
-    }
-    
-    private func removeChannelFromCoreData(context: NSManagedObjectContext, identifier: String) {
-        let fetch: NSFetchRequest<DBChannel> = DBChannel.fetchRequest()
-        fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(DBChannel.identifier), identifier)
-        guard let channel = try? context.fetch(fetch).first else { return }
-        context.delete(channel)
         
+        firebaseService.getChannels { [weak self] snap in
+            guard let self = self else { return }
+            self.coreDataService.updateRemoveOrDeleteChannels(objectsForUpdate: snap.documentChanges, isFirstLaunch: self.isFirstLaunch)
+        }
+        
+//        firebaseService.addSnapshotListenerToChannel { [weak self] snap in
+//            guard let self = self
+//            else { return }
+//            self.coreDataService.updateRemoveOrDeleteChannels(objectsForUpdate: snap.documentChanges, isFirstLaunch: self.isFirstLaunch)
+//        }
     }
     
     // MARK: - SetupUI
@@ -160,22 +98,17 @@ class ConversationsListViewController: UIViewController {
             tf.placeholder = "Channel name"
         }
         let action = UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            guard let tf = alert.textFields?[0],
+            guard let self = self,
+                  let tf = alert.textFields?[0],
                   let name = tf.text,
                   !name.isEmpty
             else { return }
-            self?.writeChannelToFirebase(name: name)
+            self.firebaseService.addChannel(name: name, uuid: self.uuid)
         }
         alert.addAction(action)
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         
         self.present(alert, animated: true)
-    }
-    
-    private func writeChannelToFirebase(name: String) {
-        let ref = channelsReference.addDocument(data: ["name": name])
-        let message = Message(content: "First message", created: Date(), senderId: uuid, senderName: "Danila")
-        ref.collection("messages").addDocument(data: message.toDict())
     }
     
     // MARK: - Navigation and theme
@@ -226,7 +159,7 @@ class ConversationsListViewController: UIViewController {
             self.theme = theme
             self.setupTheme()
             DispatchQueue.global(qos: .background).async {
-                DataManagerGCD.shared.writeThemeData(theme: theme.rawValue)
+                DataManagerGCDService.shared.writeThemeData(theme: theme.rawValue)
             }
         }
         navigationController?.pushViewController(vc, animated: true)
@@ -281,7 +214,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let channel = fetchedResultController.object(at: indexPath)
-            db.collection("channels").document(channel.identifier ?? "").delete()
+            firebaseService.removeChannelWithID(channel.identifier ?? "")
         }
     }
     
@@ -300,7 +233,8 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
                               lastMessage: dbchannel.lastMessage ?? "",
                               lastActivity: dbchannel.lastActivity ?? Date())
         vc.channel = channel
-        vc.newCoreDataStack = self.newCoreDataStack
+        vc.coreDataService = self.coreDataService
+        vc.firebaseService = self.firebaseService
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
@@ -327,7 +261,6 @@ extension ConversationsListViewController: NSFetchedResultsControllerDelegate {
                     at indexPath: IndexPath?,
                     for type: NSFetchedResultsChangeType,
                     newIndexPath: IndexPath?) {
-        print("change")
         switch type {
         case .insert:
             guard let newIndexPath = newIndexPath else {
