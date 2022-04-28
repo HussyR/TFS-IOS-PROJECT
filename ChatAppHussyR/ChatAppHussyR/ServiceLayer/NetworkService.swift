@@ -3,16 +3,6 @@
 //  ChatAppHussyR
 //
 //  Created by Данил on 26.04.2022.
-//
-//
-//protocol IRequest {
-//    var urlRequest: URLRequest? { get }
-//}
-//
-//protocol IParser {
-//    associatedtype Model
-//    func parse(data: Data) -> Model?
-//}
 
 import Foundation
 import UIKit
@@ -22,8 +12,10 @@ struct Page: Codable {
 }
 
 // MARK: - Hit
+
 struct Hit: Codable {
     let largeImageURL: String
+    let previewURL: String
 }
 
 struct PicturesParser: IParser {
@@ -42,24 +34,40 @@ struct PicturesRequest: IRequest {
     
     mutating func makeRequest(
         numberOfPhotos: Int,
-        topic: String
+        topic: String,
+        page: Int
     ) {
         let apiKey = Constants.APIKEY
         if var urlComponents = URLComponents(string: "https://pixabay.com/api") {
-            urlComponents.query = "key=\(apiKey)&q=\(topic)&per_page=\(numberOfPhotos)"
+            urlComponents.query = "key=\(apiKey)&q=\(topic)&image_type=photo&page=\(page)&per_page=\(numberOfPhotos)"
             guard let url = urlComponents.url else { return }
             urlRequest = URLRequest(url: url)
         } else {
+            print("incorrect")
             return
         }
     }
 }
 
 struct Photo {
-    var photoUrl: String
+    var previewUrl: String
+    var largeImageURL: String
 }
 
-class NetworkService {
+protocol NetworkServiceProtocol {
+    func getPictures(
+        numberOfPhotos: Int,
+        topic: String,
+        page: Int,
+        complitionHandler: @escaping (Result<[Photo], Error>) -> Void
+    )
+    func loadPicture(
+        url: String,
+        complitionHandler: @escaping (Result<Data, Error>) -> Void
+    )
+}
+
+class NetworkService: NetworkServiceProtocol {
     
     let networkCore: IRequestSender
     
@@ -70,46 +78,41 @@ class NetworkService {
     func getPictures(
         numberOfPhotos: Int,
         topic: String,
-        complitionHandler: @escaping (Result<[Photo],Error>) -> Void,
-        on queue: DispatchQueue
+        page: Int,
+        complitionHandler: @escaping (Result<[Photo], Error>) -> Void
     ) {
         let picturesParser = PicturesParser()
         var request = PicturesRequest()
-        request.makeRequest(numberOfPhotos: numberOfPhotos, topic: topic)
-        
+        request.makeRequest(numberOfPhotos: numberOfPhotos, topic: topic, page: page)
         let config = RequestConfig(request: request, parser: picturesParser)
-        
-        networkCore.send(configuration: config) { result in
+        self.networkCore.send(configuration: config) { result in
             switch result {
             case .failure(let error):
                 complitionHandler(.failure(error))
             case .success(let model):
-                let photos = model.hits.map { Photo(photoUrl: $0.largeImageURL) }
-                queue.async {
-                    complitionHandler(.success(photos))
-                }
+                #if NETWORKLOG
+                print("load page number \(page)")
+                #endif
+                let photos = model.hits.map { Photo(previewUrl: $0.previewURL, largeImageURL: $0.largeImageURL) }
+                complitionHandler(.success(photos))
             }
         }
     }
     
     func loadPicture(
         url: String,
-        complitionHandler: @escaping (Result<UIImage,Error>) -> Void,
-        on queue: DispatchQueue
+        complitionHandler: @escaping (Result<Data, Error>) -> Void
     ) {
         guard let url = URL(string: url) else { return }
-        networkCore.fetchImageWithUrl(url: url) { result in
+        
+        self.networkCore.fetchImageWithUrl(url: url) { result in
             switch result {
             case .failure(let error):
                 complitionHandler(.failure(error))
             case .success(let data):
-                queue.async {
-                    guard let image = UIImage(data: data) else { return }
-                    complitionHandler(.success(image))
-                }
+                complitionHandler(.success(data))
             }
-        
+            
         }
     }
-    
 }

@@ -20,9 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let vc = ConversationsListViewController()
         let themeRawValue = DataManagerGCDService.shared.readThemeData()
         vc.theme = Theme(rawValue: themeRawValue) ?? .classic
-        
+
         let nav = UINavigationController(rootViewController: vc)
         window?.rootViewController = nav
+//        let vc = ChoosePhotoViewController()
+//        window?.rootViewController = UINavigationController(rootViewController: vc)
         window?.makeKeyAndVisible()
         return true
     }

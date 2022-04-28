@@ -20,12 +20,12 @@ protocol IParser {
 protocol IRequestSender {
     func send<Parser>(
         configuration: RequestConfig<Parser>,
-        complitionHandler: @escaping (Result<Parser.Model,Error>) -> Void
+        complitionHandler: @escaping (Result<Parser.Model, Error>) -> Void
     )
     
     func fetchImageWithUrl(
         url: URL,
-        complitionHandler: @escaping (Result<Data,Error>) -> Void
+        complitionHandler: @escaping (Result<Data, Error>) -> Void
     )
 }
 
@@ -38,23 +38,20 @@ enum ParsingError: Error {
     case parsingError
 }
 
-
 class NetworkCore: IRequestSender {
     
     let session = URLSession.shared
+    let queue = DispatchQueue.global()
     
     func send<Parser>(
         configuration: RequestConfig<Parser>,
-        complitionHandler: @escaping (Result<Parser.Model,Error>) -> Void) where Parser : IParser {
-        
+        complitionHandler: @escaping (Result<Parser.Model, Error>) -> Void) where Parser: IParser {
             guard let request = configuration.request.urlRequest else { return }
-            
-            session.dataTask(with: request) { data, response, error in
+            session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     complitionHandler(.failure(error))
                     return
                 }
-                
                 guard let data = data,
                       let parsedModel = configuration.parser.parse(data: data)
                 else {
@@ -62,27 +59,26 @@ class NetworkCore: IRequestSender {
                     return
                 }
                 complitionHandler(.success(parsedModel))
-            }
-            
-    }
+            }.resume()
+        }
     
     func fetchImageWithUrl(
         url: URL,
-        complitionHandler: @escaping (Result<Data,Error>) -> Void
+        complitionHandler: @escaping (Result<Data, Error>) -> Void
     ) {
-        session.dataTask(with: url) { data, response, error in
+        session.dataTask(with: url) { data, _, error in
             if let error = error {
                 complitionHandler(.failure(error))
                 return
             }
-            
             guard let data = data
             else {
+                
                 complitionHandler(.failure(ParsingError.parsingError))
                 return
             }
             complitionHandler(.success(data))
-        }
+        }.resume()
     }
     
 }
