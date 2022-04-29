@@ -129,8 +129,14 @@ class ConversationViewController: UIViewController {
                 case .success(let imageData):
                     DispatchQueue.main.async {
                         let cell = self.tableView.cellForRow(at: indexPath) as? ImageTableViewCellProtocol
-                        guard let image = UIImage(data: imageData) else { return }
-                        cell?.configure(image)
+                        let resImage: UIImage?
+                        if let image = UIImage(data: imageData) {
+                            resImage = image
+                        } else {
+                            resImage = UIImage(named: "not-found")
+                        }
+                        guard let resImage = resImage else { return }
+                        cell?.configure(resImage)
                         cell?.changeActivity(isActive: false)
                     }
                 case .failure(let error):
