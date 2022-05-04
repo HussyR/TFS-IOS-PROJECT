@@ -24,6 +24,7 @@ class ConversationsListViewController: UIViewController {
     
     let coreDataService: CoreDataServiceProtocol = CoreDataService()
     let firebaseService: FirebaseServiceProtocol = FirebaseService()
+    let networkService: NetworkServiceProtocol = NetworkService()
     
     var isFirstLaunch: Bool = true
     
@@ -147,6 +148,7 @@ class ConversationsListViewController: UIViewController {
     
     @objc private func presentPersonVC() {
         let vc = ProfileViewController()
+        vc.networkService = networkService
         vc.theme = theme
         self.present(vc, animated: true, completion: nil)
     }
@@ -235,6 +237,7 @@ extension ConversationsListViewController: UITableViewDelegate, UITableViewDataS
         vc.channel = channel
         vc.coreDataService = self.coreDataService
         vc.firebaseService = self.firebaseService
+        vc.networkService = self.networkService
         vc.theme = theme
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)

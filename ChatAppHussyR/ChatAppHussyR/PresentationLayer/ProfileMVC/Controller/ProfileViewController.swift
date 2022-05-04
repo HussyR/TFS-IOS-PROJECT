@@ -26,6 +26,7 @@ class ProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var networkService: NetworkServiceProtocol?
     var oldSavedName: String?
     var oldSavedDescription: String?
     var oldImage: UIImage?
@@ -43,6 +44,13 @@ class ProfileViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Сделать фото", style: .default, handler: {[weak self] _ in
             guard let self = self else { return }
             self.showImagePickerController(sourceType: UIImagePickerController.SourceType.camera)
+        }))
+        alert.addAction(UIAlertAction(title: "Загрузить", style: .default, handler: {[weak self] _ in
+            guard let self = self else { return }
+            let vc = ChoosePhotoViewController()
+            vc.networkService = self.networkService
+            vc.delegate = self
+            self.present(vc, animated: true)
         }))
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         present(alert, animated: true, completion: nil)
@@ -506,5 +514,19 @@ extension ProfileViewController: UITextViewDelegate {
         } else {
             showButtons(show: false)
         }
+    }
+}
+
+extension ProfileViewController: ChoosePhotoViewControllerDelegate {
+    func choosePhotoViewControllerDelegate(image: UIImage) {
+        oldImage = avatarImageView.image
+        isEdit(isEdit: true)
+        avatarImageView.image = image
+        oldImageFlag = true
+        showButtons(show: true)
+    }
+    
+    func choosePhotoViewControllerDelegate(url: String) {
+        print(url)
     }
 }

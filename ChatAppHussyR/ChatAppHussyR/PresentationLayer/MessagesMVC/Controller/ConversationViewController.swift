@@ -16,6 +16,7 @@ class ConversationViewController: UIViewController {
     var channel: Channel?
     var coreDataService: CoreDataServiceProtocol?
     var firebaseService: FirebaseServiceProtocol?
+    var networkService: NetworkServiceProtocol?
     var isFirstLaunch = true
     
     private lazy var fetchedResultController: NSFetchedResultsController<DBMessage> = {
@@ -64,6 +65,7 @@ class ConversationViewController: UIViewController {
     private func setupActions() {
         sendButton.addTarget(self, action: #selector(writeNewMessage), for: .touchUpInside)
         textField.addTarget(self, action: #selector(changeValueOfTextField), for: .editingChanged)
+        sendImageButton.addTarget(self, action: #selector(showImages), for: .touchUpInside)
     }
     
     // MARK: - Logic
@@ -120,6 +122,46 @@ class ConversationViewController: UIViewController {
         sendButton.isEnabled = text.isEmpty ? false : true
     }
     
+    private func fillCellWithImage(indexPath: IndexPath, url: String) {
+        DispatchQueue.global().async {
+            self.networkService?.loadPicture(url: url) { result in
+                switch result {
+                case .success(let imageData):
+                    DispatchQueue.main.async {
+                        let cell = self.tableView.cellForRow(at: indexPath) as? ImageTableViewCellProtocol
+                        let resImage: UIImage?
+                        if let image = UIImage(data: imageData) {
+                            resImage = image
+                        } else {
+                            resImage = UIImage(named: "not-found")
+                        }
+                        guard let resImage = resImage else { return }
+                        cell?.configure(resImage)
+                        cell?.changeActivity(isActive: false)
+                    }
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    @objc private func showImages() {
+        let vc = ChoosePhotoViewController()
+        vc.networkService = networkService
+        vc.delegate = self
+        self.present(vc, animated: true)
+    }
+    
+    func verifyUrl (urlString: String) -> Bool {
+        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        if let match = detector?.firstMatch(in: urlString, options: [], range: NSRange(location: 0, length: urlString.utf16.count)) {
+            return match.range.length == urlString.utf16.count
+        } else {
+            return false
+        }
+    }
+    
     // MARK: - Setup UI
     
     private func setupUI() {
@@ -146,6 +188,8 @@ class ConversationViewController: UIViewController {
         
         tableView.register(LeftTableViewCell.self, forCellReuseIdentifier: LeftTableViewCell.identifier)
         tableView.register(RightTableViewCell.self, forCellReuseIdentifier: RightTableViewCell.identifier)
+        tableView.register(RightImageTableViewCell.self, forCellReuseIdentifier: RightImageTableViewCell.identifier)
+        tableView.register(LeftImageTableViewCell.self, forCellReuseIdentifier: LeftImageTableViewCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -153,6 +197,7 @@ class ConversationViewController: UIViewController {
     private func setupViewForSendMessage() {
         viewForSendMessage.addSubview(textField)
         viewForSendMessage.addSubview(sendButton)
+        viewForSendMessage.addSubview(sendImageButton)
         
         NSLayoutConstraint.activate([
             sendButton.topAnchor.constraint(equalTo: viewForSendMessage.topAnchor),
@@ -160,8 +205,14 @@ class ConversationViewController: UIViewController {
             sendButton.trailingAnchor.constraint(equalTo: viewForSendMessage.trailingAnchor),
             sendButton.widthAnchor.constraint(equalToConstant: 58),
             
+            sendImageButton.centerYAnchor.constraint(equalTo: viewForSendMessage.centerYAnchor),
+            sendImageButton.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
+            sendImageButton.leadingAnchor.constraint(equalTo: textField.trailingAnchor, constant: 8),
+            sendImageButton.heightAnchor.constraint(equalToConstant: 24),
+            sendImageButton.widthAnchor.constraint(equalToConstant: 24),
+            
             textField.leadingAnchor.constraint(equalTo: viewForSendMessage.leadingAnchor, constant: 8),
-            textField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
+            textField.trailingAnchor.constraint(equalTo: sendImageButton.leadingAnchor, constant: -8),
             textField.topAnchor.constraint(equalTo: viewForSendMessage.topAnchor),
             textField.bottomAnchor.constraint(equalTo: viewForSendMessage.bottomAnchor)
         ])
@@ -200,6 +251,15 @@ class ConversationViewController: UIViewController {
         button.setTitleColor(UIColor.gray, for: .disabled)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isEnabled = false
+        return button
+    }()
+    
+    let sendImageButton: UIButton = {
+        let button = UIButton(type: .system)
+        let image = UIImage(systemName: "person.crop.rectangle.fill")
+        button.setImage(image, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isEnabled = true
         return button
     }()
     
@@ -243,22 +303,38 @@ extension ConversationViewController: UITableViewDataSource, UITableViewDelegate
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let dbmessage = fetchedResultController.object(at: indexPath)
-        print(dbmessage.identifier)
         let message = Message(
             content: dbmessage.content ?? "",
             created: dbmessage.created ?? Date(),
             senderId: dbmessage.senderId ?? "",
             senderName: dbmessage.senderName ?? "")
         if message.senderId == uuid {
-            let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
-            cell?.configure(message.content)
-            cell?.configure(theme: theme)
-            return cell ?? UITableViewCell()
+            if verifyUrl(urlString: message.content) {
+                let cell = tableView.dequeueReusableCell(withIdentifier: RightImageTableViewCell.identifier, for: indexPath) as? RightImageTableViewCell
+                cell?.configure(theme: theme)
+                cell?.changeActivity(isActive: true)
+                fillCellWithImage(indexPath: indexPath, url: message.content)
+                return cell ?? UITableViewCell()
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: RightTableViewCell.identifier, for: indexPath) as? RightTableViewCell
+                cell?.configure(message.content)
+                cell?.configure(theme: theme)
+                return cell ?? UITableViewCell()
+            }
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
-            cell?.configure(message)
-            cell?.configure(theme: theme)
-            return cell ?? UITableViewCell()
+            if verifyUrl(urlString: message.content) {
+                let cell = tableView.dequeueReusableCell(withIdentifier: LeftImageTableViewCell.identifier, for: indexPath) as? LeftImageTableViewCell
+                cell?.configure(name: message.senderName)
+                cell?.configure(theme: theme)
+                cell?.changeActivity(isActive: true)
+                fillCellWithImage(indexPath: indexPath, url: message.content)
+                return cell ?? UITableViewCell()
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: LeftTableViewCell.identifier, for: indexPath) as? LeftTableViewCell
+                cell?.configure(message)
+                cell?.configure(theme: theme)
+                return cell ?? UITableViewCell()
+            }
         }
     }
     
@@ -316,4 +392,15 @@ extension ConversationViewController: NSFetchedResultsControllerDelegate {
         tableView.endUpdates()
     }
     
+}
+
+extension ConversationViewController: ChoosePhotoViewControllerDelegate {
+    func choosePhotoViewControllerDelegate(image: UIImage) {
+        print("передано фото")
+    }
+    
+    func choosePhotoViewControllerDelegate(url: String) {
+        self.textField.text = url
+        self.sendButton.isEnabled = true
+    }
 }
