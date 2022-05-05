@@ -182,11 +182,45 @@ class ProfileViewController: UIViewController {
     }
     
     private func isEdit(isEdit: Bool) {
+        if isEdit {
+            animateCancelButton()
+        } else {
+            cancelButton.layer.removeAllAnimations()
+        }
+        
         editTextButton.isHidden = isEdit
         cancelButton.isHidden = !isEdit
         saveButton.isHidden = !isEdit
         nameTextField.isUserInteractionEnabled = isEdit
         descriptionTextView.isUserInteractionEnabled = isEdit
+    }
+    
+    private func animateCancelButton() {
+        let width = cancelButton.frame.midX
+        let height = cancelButton.frame.midY
+        let animationMove = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+        // Сделал только на 5 градусов, так как на 18 слишком сильно ее крутит))
+        animationMove.values = [0, -(Float.pi / 180) * 5, 0, +(Float.pi / 180) * 5, 0]
+
+        let animationMoveXY = CAKeyframeAnimation(keyPath: #keyPath(CALayer.position))
+        animationMoveXY.values = [
+            CGPoint(x: width, y: height),
+            CGPoint(x: width + 5, y: height),
+            CGPoint(x: width, y: height),
+            CGPoint(x: width - 5, y: height),
+            CGPoint(x: width, y: height),
+            CGPoint(x: width, y: height + 5),
+            CGPoint(x: width, y: height),
+            CGPoint(x: width, y: height - 5),
+            CGPoint(x: width, y: height)
+        ]
+
+        let group = CAAnimationGroup()
+        group.duration = 0.3
+        group.repeatCount = .infinity
+        group.animations = [animationMove, animationMoveXY]
+
+        cancelButton.layer.add(group, forKey: "key")
     }
     
     private func hasChanges() -> Bool {
