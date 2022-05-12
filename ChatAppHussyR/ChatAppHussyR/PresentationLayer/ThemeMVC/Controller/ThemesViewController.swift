@@ -80,6 +80,42 @@ class ThemesViewController: UIViewController {
         return tableView
     }()
     
+    lazy var tinkoffImageCell: CAEmitterCell = {
+        var snowCell = CAEmitterCell()
+        snowCell.contents = UIImage(named: "tinkoff-bank-general-logo")?.cgImage
+        snowCell.scale = 0.05
+        snowCell.lifetime = 3
+        snowCell.birthRate = 4
+        snowCell.velocity = 5
+        snowCell.yAcceleration = 500
+        return snowCell
+    }()
+    
+    var tinkoffLayer: CAEmitterLayer?
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first
+        let location = touch?.location(in: view)
+        
+        tinkoffLayer = CAEmitterLayer()
+        
+        guard let tinkoffLayer = tinkoffLayer else {
+            return
+        }
+
+        tinkoffLayer.emitterPosition = CGPoint(x: location?.x ?? 0, y: location?.y ?? 0)
+        tinkoffLayer.emitterSize = CGSize(width: 40, height: 0)
+        tinkoffLayer.emitterShape = CAEmitterLayerEmitterShape.line
+        tinkoffLayer.emitterCells = [tinkoffImageCell]
+        view.layer.addSublayer(tinkoffLayer)
+        
+    }
+   
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        tinkoffLayer?.removeFromSuperlayer()
+        tinkoffLayer?.emitterCells = []
+    }
+    
 }
 
     // MARK: - UITableViewDataSource, UITableViewDelegate

@@ -148,6 +148,7 @@ class ConversationsListViewController: UIViewController {
     
     @objc private func presentPersonVC() {
         let vc = ProfileViewController()
+        vc.transitioningDelegate = self
         vc.networkService = networkService
         vc.theme = theme
         self.present(vc, animated: true, completion: nil)
@@ -297,4 +298,14 @@ extension ConversationsListViewController: NSFetchedResultsControllerDelegate {
         tableView.endUpdates()
     }
     
+}
+
+extension ConversationsListViewController: UIViewControllerTransitioningDelegate {
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController)
+    -> UIViewControllerAnimatedTransitioning? {
+        return CustomTransition()
+    }
 }
