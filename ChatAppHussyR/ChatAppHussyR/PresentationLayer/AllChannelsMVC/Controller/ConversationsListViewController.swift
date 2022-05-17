@@ -22,9 +22,9 @@ class ConversationsListViewController: UIViewController {
         return controller
     }()
     
-    let coreDataService: CoreDataServiceProtocol = CoreDataService()
-    let firebaseService: FirebaseServiceProtocol = FirebaseService()
-    let networkService: NetworkServiceProtocol = NetworkService()
+    let coreDataService: CoreDataServiceProtocol
+    let firebaseService: FirebaseServiceProtocol
+    let networkService: NetworkServiceProtocol
     
     var isFirstLaunch: Bool = true
     
@@ -32,6 +32,24 @@ class ConversationsListViewController: UIViewController {
     var passedName: String?
     var uuid: String {
         UIDevice.current.identifierForVendor?.uuidString ?? ""
+    }
+    
+    // MARK: - Init
+    
+    init() {
+        let coreDataCore = NewCoreDataCore()
+        let firebaseCore = FirebaseCore()
+        let networkCore = NetworkCore()
+        
+        coreDataService = CoreDataService(coreDataCore: coreDataCore)
+        firebaseService = FirebaseService(firebaseCore: firebaseCore)
+        networkService = NetworkService(networkCore: networkCore)
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - Lifecycle

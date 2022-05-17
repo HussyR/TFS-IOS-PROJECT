@@ -71,8 +71,8 @@ class NetworkService: NetworkServiceProtocol {
     
     let networkCore: IRequestSender
     
-    init() {
-        networkCore = NetworkCore()
+    init(networkCore: IRequestSender) {
+        self.networkCore = networkCore
     }
     
     func getPictures(

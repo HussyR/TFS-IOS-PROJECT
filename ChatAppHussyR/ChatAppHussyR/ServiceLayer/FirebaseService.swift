@@ -9,18 +9,21 @@ import Foundation
 import Firebase
 
 protocol FirebaseServiceProtocol {
+    
     func addChannel(name: String, uuid: String)
     func addMessage(message: Message, channelID: String)
     func getChannels(block: @escaping (QuerySnapshot) -> Void)
     func getMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void)
     func removeChannelWithID(_ id: String)
+    
 }
 
 class FirebaseService: FirebaseServiceProtocol {
+    
     let firebaseCore: FirebaseCoreProtocol
     
-    init() {
-        firebaseCore = FirebaseCore()
+    init(firebaseCore: FirebaseCoreProtocol) {
+        self.firebaseCore = firebaseCore
     }
     
     func addMessage(message: Message, channelID: String) {
@@ -32,7 +35,11 @@ class FirebaseService: FirebaseServiceProtocol {
     
     func addChannel(name: String, uuid: String) {
         let ref = firebaseCore.channelsReference.addDocument(data: ["name": name])
-        let message = Message(content: "First message", created: Date(), senderId: uuid, senderName: "Danila")
+        let message = Message(
+            content: "First message",
+            created: Date(),
+            senderId: uuid,
+            senderName: "Danila")
         ref.collection("messages").addDocument(data: message.toDict())
     }
     
@@ -59,21 +66,4 @@ class FirebaseService: FirebaseServiceProtocol {
             block(snap)
         }
     }
-//    func addSnapshotListenerToChannel(block: @escaping (QuerySnapshot) -> Void) {
-//        firebaseCore.channelsReference.addSnapshotListener { snap, error in
-//            guard let snap = snap,
-//                  error == nil
-//            else { return }
-//            block(snap)
-//        }
-//    }
-    
-//    func addSnapshotListenerToMessages(channelID: String, block: @escaping (QuerySnapshot) -> Void) {
-//        firebaseCore.channelsReference.document(channelID).collection("messages").addSnapshotListener { snap, error in
-//            guard let snap = snap,
-//                  error == nil
-//            else { return }
-//            block(snap)
-//        }
-//    }
 }
