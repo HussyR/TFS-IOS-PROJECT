@@ -35,6 +35,7 @@
 		83B53E84283410DC008161E9 /* ChatAppHussyRTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E83283410DC008161E9 /* ChatAppHussyRTests.swift */; };
 		83B53E862834149E008161E9 /* NetworkCoreMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E852834149E008161E9 /* NetworkCoreMock.swift */; };
 		83B53E88283415BC008161E9 /* NetworkServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E87283415BC008161E9 /* NetworkServiceTest.swift */; };
+		83B53E9F28356258008161E9 /* ChatAppHussyRUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E9E28356258008161E9 /* ChatAppHussyRUITests.swift */; };
 		83D5881E282425AF00711D07 /* CustomTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D5881D282425AF00711D07 /* CustomTransition.swift */; };
 		83D61A9C27FB35810050760B /* NewCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9B27FB35810050760B /* NewCoreDataStack.swift */; };
 		83D61AA027FB36990050760B /* ChatAppHussyR.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 83D61A9E27FB36990050760B /* ChatAppHussyR.xcdatamodeld */; };
@@ -45,6 +46,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		833346A02833ED31004514AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 835CF9FA27BF8825004B6BD6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 835CFA0127BF8825004B6BD6;
+			remoteInfo = ChatAppHussyR;
+		};
+		83B53EA228356258008161E9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 835CF9FA27BF8825004B6BD6 /* Project object */;
 			proxyType = 1;
@@ -86,6 +94,8 @@
 		83B53E83283410DC008161E9 /* ChatAppHussyRTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppHussyRTests.swift; sourceTree = "<group>"; };
 		83B53E852834149E008161E9 /* NetworkCoreMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCoreMock.swift; sourceTree = "<group>"; };
 		83B53E87283415BC008161E9 /* NetworkServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceTest.swift; sourceTree = "<group>"; };
+		83B53E9C28356258008161E9 /* ChatAppHussyRUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChatAppHussyRUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		83B53E9E28356258008161E9 /* ChatAppHussyRUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppHussyRUITests.swift; sourceTree = "<group>"; };
 		83D5881D282425AF00711D07 /* CustomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransition.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
 		83D61A9F27FB36990050760B /* ChatAppHussyR.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ChatAppHussyR.xcdatamodel; sourceTree = "<group>"; };
@@ -108,6 +118,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4408C41D6D53BA36F3AB7F90 /* Pods_ChatAppHussyR.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		83B53E9928356258008161E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,6 +184,7 @@
 			children = (
 				835CFA0427BF8825004B6BD6 /* ChatAppHussyR */,
 				8333469D2833ED31004514AB /* ChatAppHussyRTests */,
+				83B53E9D28356258008161E9 /* ChatAppHussyRUITests */,
 				835CFA0327BF8825004B6BD6 /* Products */,
 				6A329854B2E3EED8980EEB2A /* Pods */,
 				CF9743A7AC69BBE45192E30B /* Frameworks */,
@@ -178,6 +196,7 @@
 			children = (
 				835CFA0227BF8825004B6BD6 /* ChatAppHussyR.app */,
 				8333469C2833ED31004514AB /* ChatAppHussyRTests.xctest */,
+				83B53E9C28356258008161E9 /* ChatAppHussyRUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -398,6 +417,14 @@
 			path = ServiceLayer;
 			sourceTree = "<group>";
 		};
+		83B53E9D28356258008161E9 /* ChatAppHussyRUITests */ = {
+			isa = PBXGroup;
+			children = (
+				83B53E9E28356258008161E9 /* ChatAppHussyRUITests.swift */,
+			);
+			path = ChatAppHussyRUITests;
+			sourceTree = "<group>";
+		};
 		83D61A9D27FB367A0050760B /* Others */ = {
 			isa = PBXGroup;
 			children = (
@@ -456,6 +483,24 @@
 			productReference = 835CFA0227BF8825004B6BD6 /* ChatAppHussyR.app */;
 			productType = "com.apple.product-type.application";
 		};
+		83B53E9B28356258008161E9 /* ChatAppHussyRUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 83B53EA628356258008161E9 /* Build configuration list for PBXNativeTarget "ChatAppHussyRUITests" */;
+			buildPhases = (
+				83B53E9828356258008161E9 /* Sources */,
+				83B53E9928356258008161E9 /* Frameworks */,
+				83B53E9A28356258008161E9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				83B53EA328356258008161E9 /* PBXTargetDependency */,
+			);
+			name = ChatAppHussyRUITests;
+			productName = ChatAppHussyRUITests;
+			productReference = 83B53E9C28356258008161E9 /* ChatAppHussyRUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -472,6 +517,10 @@
 					};
 					835CFA0127BF8825004B6BD6 = {
 						CreatedOnToolsVersion = 13.2.1;
+					};
+					83B53E9B28356258008161E9 = {
+						CreatedOnToolsVersion = 13.3;
+						TestTargetID = 835CFA0127BF8825004B6BD6;
 					};
 				};
 			};
@@ -490,6 +539,7 @@
 			targets = (
 				835CFA0127BF8825004B6BD6 /* ChatAppHussyR */,
 				8333469B2833ED31004514AB /* ChatAppHussyRTests */,
+				83B53E9B28356258008161E9 /* ChatAppHussyRUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -509,6 +559,13 @@
 				835CFA1227BF8827004B6BD6 /* LaunchScreen.storyboard in Resources */,
 				835CFA0F27BF8827004B6BD6 /* Assets.xcassets in Resources */,
 				83325DCD280752AF0015276F /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		83B53E9A28356258008161E9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,6 +675,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		83B53E9828356258008161E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				83B53E9F28356258008161E9 /* ChatAppHussyRUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -625,6 +690,11 @@
 			isa = PBXTargetDependency;
 			target = 835CFA0127BF8825004B6BD6 /* ChatAppHussyR */;
 			targetProxy = 833346A02833ED31004514AB /* PBXContainerItemProxy */;
+		};
+		83B53EA328356258008161E9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 835CFA0127BF8825004B6BD6 /* ChatAppHussyR */;
+			targetProxy = 83B53EA228356258008161E9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -866,6 +936,42 @@
 			};
 			name = Release;
 		};
+		83B53EA428356258008161E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DK8A94C3H5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.company.ChatAppHussyRUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ChatAppHussyR;
+			};
+			name = Debug;
+		};
+		83B53EA528356258008161E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DK8A94C3H5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.company.ChatAppHussyRUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ChatAppHussyR;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -892,6 +998,15 @@
 			buildConfigurations = (
 				835CFA1727BF8827004B6BD6 /* Debug */,
 				835CFA1827BF8827004B6BD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		83B53EA628356258008161E9 /* Build configuration list for PBXNativeTarget "ChatAppHussyRUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				83B53EA428356258008161E9 /* Debug */,
+				83B53EA528356258008161E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
