@@ -32,7 +32,6 @@
 		83A01587280DD49900D5CAE2 /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A01586280DD49900D5CAE2 /* FirebaseService.swift */; };
 		83ADFC7A27EA222200355F8A /* DataManagerGCDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7927EA222200355F8A /* DataManagerGCDService.swift */; };
 		83ADFC7C27EA3C6400355F8A /* DataManagerOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */; };
-		83B53E84283410DC008161E9 /* ChatAppHussyRTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E83283410DC008161E9 /* ChatAppHussyRTests.swift */; };
 		83B53E862834149E008161E9 /* NetworkCoreMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E852834149E008161E9 /* NetworkCoreMock.swift */; };
 		83B53E88283415BC008161E9 /* NetworkServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E87283415BC008161E9 /* NetworkServiceTest.swift */; };
 		83B53E9F28356258008161E9 /* ChatAppHussyRUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83B53E9E28356258008161E9 /* ChatAppHussyRUITests.swift */; };
@@ -91,11 +90,12 @@
 		83A01586280DD49900D5CAE2 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
 		83ADFC7927EA222200355F8A /* DataManagerGCDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerGCDService.swift; sourceTree = "<group>"; };
 		83ADFC7B27EA3C6400355F8A /* DataManagerOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerOperation.swift; sourceTree = "<group>"; };
-		83B53E83283410DC008161E9 /* ChatAppHussyRTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppHussyRTests.swift; sourceTree = "<group>"; };
 		83B53E852834149E008161E9 /* NetworkCoreMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCoreMock.swift; sourceTree = "<group>"; };
 		83B53E87283415BC008161E9 /* NetworkServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceTest.swift; sourceTree = "<group>"; };
 		83B53E9C28356258008161E9 /* ChatAppHussyRUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChatAppHussyRUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		83B53E9E28356258008161E9 /* ChatAppHussyRUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppHussyRUITests.swift; sourceTree = "<group>"; };
+		83B53EAB283672BA008161E9 /* UnitTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestPlan.xctestplan; sourceTree = "<group>"; };
+		83B53EAC283672C7008161E9 /* UITestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestPlan.xctestplan; sourceTree = "<group>"; };
 		83D5881D282425AF00711D07 /* CustomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransition.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
 		83D61A9F27FB36990050760B /* ChatAppHussyR.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ChatAppHussyR.xcdatamodel; sourceTree = "<group>"; };
@@ -158,7 +158,6 @@
 			children = (
 				833346A62833FB30004514AB /* cases */,
 				833346A52833FB24004514AB /* Mocks */,
-				83B53E83283410DC008161E9 /* ChatAppHussyRTests.swift */,
 			);
 			path = ChatAppHussyRTests;
 			sourceTree = "<group>";
@@ -182,6 +181,7 @@
 		835CF9F927BF8825004B6BD6 = {
 			isa = PBXGroup;
 			children = (
+				83B53EAA283672A6008161E9 /* TestPlans */,
 				835CFA0427BF8825004B6BD6 /* ChatAppHussyR */,
 				8333469D2833ED31004514AB /* ChatAppHussyRTests */,
 				83B53E9D28356258008161E9 /* ChatAppHussyRUITests */,
@@ -425,6 +425,15 @@
 			path = ChatAppHussyRUITests;
 			sourceTree = "<group>";
 		};
+		83B53EAA283672A6008161E9 /* TestPlans */ = {
+			isa = PBXGroup;
+			children = (
+				83B53EAB283672BA008161E9 /* UnitTestPlan.xctestplan */,
+				83B53EAC283672C7008161E9 /* UITestPlan.xctestplan */,
+			);
+			path = TestPlans;
+			sourceTree = "<group>";
+		};
 		83D61A9D27FB367A0050760B /* Others */ = {
 			isa = PBXGroup;
 			children = (
@@ -636,7 +645,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				83B53E88283415BC008161E9 /* NetworkServiceTest.swift in Sources */,
-				83B53E84283410DC008161E9 /* ChatAppHussyRTests.swift in Sources */,
 				83B53E862834149E008161E9 /* NetworkCoreMock.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

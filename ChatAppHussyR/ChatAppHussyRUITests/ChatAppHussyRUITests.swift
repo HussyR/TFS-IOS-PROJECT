@@ -11,14 +11,14 @@ class ChatAppHussyRUITests: XCTestCase {
 
     var app: XCUIApplication!
     
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
         app.launch()
     }
 
-    func testExample() throws {
+    func testProfileScreen() {
         // UI tests must launch the application that they test.
         app.navigationBars.buttons["person.fill"].tap()
         XCTAssertTrue(app.textViews.element.exists)
@@ -27,14 +27,5 @@ class ChatAppHussyRUITests: XCTestCase {
         XCTAssertTrue(app.images["person"].exists)
         XCTAssertTrue(app.buttons["editProfile"].exists)
         XCTAssertTrue(app.buttons["editText"].exists)
-    }
-
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
     }
 }
