@@ -99,6 +99,7 @@
 		83D5881D282425AF00711D07 /* CustomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransition.swift; sourceTree = "<group>"; };
 		83D61A9B27FB35810050760B /* NewCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCoreDataStack.swift; sourceTree = "<group>"; };
 		83D61A9F27FB36990050760B /* ChatAppHussyR.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ChatAppHussyR.xcdatamodel; sourceTree = "<group>"; };
+		83DA709B283D084B00D230CA /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		83DABB9A2819A3F300559EA3 /* PhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 		83FDCF1627D8E66600F2E410 /* RightTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightTableViewCell.swift; sourceTree = "<group>"; };
 		83FDCF1827D8E67600F2E410 /* LeftTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftTableViewCell.swift; sourceTree = "<group>"; };
@@ -181,6 +182,7 @@
 		835CF9F927BF8825004B6BD6 = {
 			isa = PBXGroup;
 			children = (
+				83DA709B283D084B00D230CA /* Config.xcconfig */,
 				83B53EAA283672A6008161E9 /* TestPlans */,
 				835CFA0427BF8825004B6BD6 /* ChatAppHussyR */,
 				8333469D2833ED31004514AB /* ChatAppHussyRTests */,
@@ -476,8 +478,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 835CFA1627BF8827004B6BD6 /* Build configuration list for PBXNativeTarget "ChatAppHussyR" */;
 			buildPhases = (
-				8350305727F2267C004E66B9 /* ShellScript */,
 				A3B5E24EA6FBE3C720A50FE6 /* [CP] Check Pods Manifest.lock */,
+				8350305727F2267C004E66B9 /* ShellScript */,
 				835CF9FE27BF8825004B6BD6 /* Sources */,
 				835CF9FF27BF8825004B6BD6 /* Frameworks */,
 				835CFA0027BF8825004B6BD6 /* Resources */,
@@ -762,6 +764,7 @@
 		};
 		835CFA1427BF8827004B6BD6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 83DA709B283D084B00D230CA /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
