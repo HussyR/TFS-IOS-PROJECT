@@ -37,7 +37,15 @@ struct PicturesRequest: IRequest {
         topic: String,
         page: Int
     ) {
-        let apiKey = Constants.APIKEY
+//        let apiKey = Constants.APIKEY
+        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
+        else {
+            print("config errors")
+            return
+        }
+        
+        print(apiKey)
+        
         if var urlComponents = URLComponents(string: "https://pixabay.com/api") {
             urlComponents.query = "key=\(apiKey)&q=\(topic)&image_type=photo&page=\(page)&per_page=\(numberOfPhotos)"
             guard let url = urlComponents.url else { return }
@@ -71,8 +79,8 @@ class NetworkService: NetworkServiceProtocol {
     
     let networkCore: IRequestSender
     
-    init() {
-        networkCore = NetworkCore()
+    init(networkCore: IRequestSender) {
+        self.networkCore = networkCore
     }
     
     func getPictures(

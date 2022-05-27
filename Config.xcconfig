@@ -1,0 +1,11 @@
+//
+//  Config.xcconfig
+//  ChatAppHussyR
+//
+//  Created by Данил on 24.05.2022.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+API_KEY=27026902-878f5851b39e54325c8621910

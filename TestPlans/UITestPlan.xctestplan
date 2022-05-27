@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "7B5BCA31-898F-44F0-8812-6590A13EE774",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:ChatAppHussyR.xcodeproj",
+        "identifier" : "83B53E9B28356258008161E9",
+        "name" : "ChatAppHussyRUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

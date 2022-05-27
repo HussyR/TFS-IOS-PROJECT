@@ -1,0 +1,22 @@
+desc "build_for_testing"
+lane :build_for_test do |options|
+  cocoapods
+  scan(
+    build_for_testing: true,
+    derived_data_path: "tmp_folder"
+  )
+
+  puts "Done!"
+end
+
+lane :run_test do |options|
+  scan(
+    test_without_building: true,
+    derived_data_path: "tmp_folder"
+  )
+end
+
+lane :build_and_test do |options|
+  build_for_test
+  run_test
+end

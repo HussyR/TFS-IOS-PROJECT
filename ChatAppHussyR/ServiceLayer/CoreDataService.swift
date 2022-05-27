@@ -22,13 +22,15 @@ protocol CoreDataServiceProtocol {
 }
 
 class CoreDataService: CoreDataServiceProtocol {
+    
     private let coreDataCore: CoreDataCoreProtocol
+    
     var contextForFetchedResultController: NSManagedObjectContext {
         return coreDataCore.contextForFetchedResultController
     }
     
-    init() {
-        coreDataCore = NewCoreDataCore()
+    init(coreDataCore: CoreDataCoreProtocol) {
+        self.coreDataCore = coreDataCore
     }
     
     func updateRemoveOrDeleteChannels(

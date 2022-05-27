@@ -3,6 +3,8 @@ excluded:
   - UnitTests
   - UITests
   - DerivedData
+  - tmp_folder
+  
 
 warning_threshold: 1
 

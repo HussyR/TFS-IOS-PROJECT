@@ -388,6 +388,7 @@ class ProfileViewController: UIViewController {
     
     let editAvatarButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "editProfile"
         button.setTitle("Edit", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -420,6 +421,7 @@ class ProfileViewController: UIViewController {
     
     let editTextButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "editText"
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .black.withAlphaComponent(0.04)
         button.setTitle("Edit", for: .normal)
