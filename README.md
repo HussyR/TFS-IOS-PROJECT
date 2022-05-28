@@ -1,7 +1,7 @@
-#Chat app for TFS
+# Chat app for TFS
 Приложение чат, разделение на каналы, с возможностью отправлять текст и фото, смена темы приложения, экран профиля 
 
-##Technologies
+## Technologies
 
 - UIKit
 - Code autolayout
@@ -13,5 +13,5 @@
 - Unit tests
 - UI tests
 
-##GitHub CI
+## GitHub CI
 ![CI](https://github.com/TFS-iOS/chat-app-HussyR/actions/workflows/github.yml/badge.svg)
